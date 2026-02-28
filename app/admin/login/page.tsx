@@ -39,8 +39,8 @@ function LoginForm() {
       return;
     }
 
-    router.push(redirect);
-    router.refresh();
+    // Full page navigation ensures cookies are sent in the next request
+    window.location.href = redirect;
   }
 
   return (

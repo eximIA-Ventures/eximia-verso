@@ -24,7 +24,9 @@ function createFetchWithRetryLimit() {
 
   return async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = typeof input === "string" ? input : input.toString();
-    const isRefreshRequest = url.includes("/auth/v1/token") && url.includes("grant_type=refresh_token");
+    const isRefreshRequest =
+      url.includes("/auth/v1/token") &&
+      url.includes("grant_type=refresh_token");
 
     const response = await fetch(input, init);
 
@@ -32,24 +34,17 @@ function createFetchWithRetryLimit() {
       if (response.status === 429 || response.status === 400) {
         refreshFailCount++;
         if (refreshFailCount >= MAX_REFRESH_FAILURES) {
-          // Break the loop: clear corrupted session data
           if (typeof window !== "undefined") {
-            const projectId = process.env.NEXT_PUBLIC_SUPABASE_URL?.match(
-              /https:\/\/([^.]+)\./
-            )?.[1];
-            if (projectId) {
-              Object.keys(localStorage).forEach((key) => {
-                if (key.includes(projectId) || key.startsWith("sb-")) {
-                  localStorage.removeItem(key);
-                }
-              });
-            }
+            clearSupabaseSession();
             console.warn(
-              "[Verso] Session refresh failed %d times. Cleared corrupted session — please log in again.",
+              "[Verso] Session refresh failed %d times. Cleared corrupted session.",
               refreshFailCount
             );
             refreshFailCount = 0;
-            window.location.href = "/admin/login";
+            // Only hard-redirect if NOT already on the login page
+            if (!window.location.pathname.includes("/login")) {
+              window.location.href = "/admin/login";
+            }
           }
         }
       } else if (response.ok) {
@@ -59,4 +54,26 @@ function createFetchWithRetryLimit() {
 
     return response;
   };
+}
+
+function clearSupabaseSession() {
+  const projectId = process.env.NEXT_PUBLIC_SUPABASE_URL?.match(
+    /https:\/\/([^.]+)\./
+  )?.[1];
+  if (!projectId) return;
+
+  // Clear localStorage
+  Object.keys(localStorage).forEach((key) => {
+    if (key.includes(projectId) || key.startsWith("sb-")) {
+      localStorage.removeItem(key);
+    }
+  });
+
+  // Clear cookies (Supabase SSR stores session here)
+  document.cookie.split(";").forEach((c) => {
+    const name = c.split("=")[0].trim();
+    if (name.includes(projectId) || name.startsWith("sb-")) {
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+    }
+  });
 }
