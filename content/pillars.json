@@ -1,0 +1,30 @@
+[
+  {
+    "id": "ai-strategy",
+    "name": "IA & Estrategia",
+    "description": "Ferramentas mudam a cada trimestre. Vantagem competitiva nao. Aqui, como direcionar IA com estrategia real.",
+    "icon": "brain",
+    "color": "accent"
+  },
+  {
+    "id": "business",
+    "name": "Negocios & Empreendedorismo",
+    "description": "Modelos de negocio, decisoes sob incerteza e o que muda quando IA entra na equacao.",
+    "icon": "bar-chart-3",
+    "color": "accent-alt"
+  },
+  {
+    "id": "technology",
+    "name": "Tecnologia & Inovacao",
+    "description": "Tendencias que importam, ferramentas que funcionam e como adotar inovacao sem hype.",
+    "icon": "zap",
+    "color": "amber"
+  },
+  {
+    "id": "agribusiness",
+    "name": "Agronegocio & Inovacao",
+    "description": "Onde tecnologia encontra o campo. AgTech, dados no agro e o futuro da cadeia produtiva.",
+    "icon": "wheat",
+    "color": "green"
+  }
+]

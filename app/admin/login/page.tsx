@@ -1,0 +1,102 @@
+"use client";
+
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect") || "/admin";
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    const supabase = createClient();
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (authError) {
+      setError("Credenciais inválidas.");
+      setLoading(false);
+      return;
+    }
+
+    router.push(redirect);
+    router.refresh();
+  }
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-bg px-4">
+      <div className="w-full max-w-sm">
+        <div className="mb-8 text-center">
+          <p className="mb-1 text-[10px] font-mono uppercase tracking-[0.3em] text-accent">
+            Verso Admin
+          </p>
+          <h1 className="font-display text-2xl font-bold tracking-tight">
+            Acessar painel
+          </h1>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="email" className="mb-1 block text-xs text-muted">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-primary outline-none transition-colors focus:border-accent"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="password" className="mb-1 block text-xs text-muted">
+              Senha
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-primary outline-none transition-colors focus:border-accent"
+            />
+          </div>
+
+          {error && (
+            <p className="text-xs text-red-400">{error}</p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-bg transition-opacity hover:opacity-90 disabled:opacity-50"
+          >
+            {loading ? "Entrando..." : "Entrar"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,203 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ======================================================================
+   DESIGN TOKENS — Reused from ecosystem-dashboard
+   ====================================================================== */
+
+:root {
+  /* Dark mode (default) — RGB tuples for Tailwind alpha support */
+  --c-bg: 10 10 10;
+  --c-surface: 17 17 17;
+  --c-elevated: 26 26 26;
+  --c-border: 42 42 42;
+  --c-primary: 232 224 213;
+  --c-accent: 196 168 130;
+  --c-accent-alt: 124 158 143;
+  --c-muted: 102 102 102;
+
+  /* Hex for inline styles */
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --elevated: #1a1a1a;
+  --border: #2a2a2a;
+  --primary: #e8e0d5;
+  --accent: #c4a882;
+  --accent-alt: #7c9e8f;
+  --muted: #666666;
+}
+
+[data-theme="light"] {
+  --c-bg: 248 246 243;
+  --c-surface: 255 255 255;
+  --c-elevated: 240 237 232;
+  --c-border: 224 220 213;
+  --c-primary: 26 26 26;
+  --c-accent: 139 115 85;
+  --c-accent-alt: 90 122 107;
+  --c-muted: 136 136 136;
+
+  --bg: #f8f6f3;
+  --surface: #ffffff;
+  --elevated: #f0ede8;
+  --border: #e0dcd5;
+  --primary: #1a1a1a;
+  --accent: #8b7355;
+  --accent-alt: #5a7a6b;
+  --muted: #888888;
+}
+
+/* ======================================================================
+   BASE STYLES
+   ====================================================================== */
+
+body {
+  font-family: "Inter", sans-serif;
+  background-color: rgb(var(--c-bg));
+  color: rgb(var(--c-primary));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "cv11", "ss01";
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background-color: rgb(var(--c-accent) / 0.25);
+}
+
+/* ======================================================================
+   TYPOGRAPHY
+   ====================================================================== */
+
+h1,
+h2,
+h3 {
+  font-family: "Playfair Display", serif;
+  letter-spacing: -0.02em;
+}
+
+/* ======================================================================
+   PROSE (MDX Articles)
+   ====================================================================== */
+
+.prose {
+  --tw-prose-body: rgb(var(--c-primary) / 0.85);
+  --tw-prose-headings: rgb(var(--c-primary));
+  --tw-prose-links: rgb(var(--c-accent));
+  --tw-prose-bold: rgb(var(--c-primary));
+  --tw-prose-quotes: rgb(var(--c-muted));
+  --tw-prose-quote-borders: rgb(var(--c-accent) / 0.3);
+  --tw-prose-code: rgb(var(--c-accent));
+  --tw-prose-hr: rgb(var(--c-border));
+  --tw-prose-counters: rgb(var(--c-muted));
+  --tw-prose-bullets: rgb(var(--c-muted) / 0.5);
+}
+
+.prose h2 {
+  font-family: "Playfair Display", serif;
+  margin-top: 2.5em;
+  margin-bottom: 0.75em;
+  letter-spacing: -0.02em;
+}
+
+.prose h3 {
+  font-family: "Playfair Display", serif;
+  margin-top: 2em;
+  margin-bottom: 0.5em;
+}
+
+.prose p {
+  line-height: 1.8;
+  margin-bottom: 1.25em;
+}
+
+.prose > p:first-of-type {
+  font-size: 1.125em;
+  line-height: 1.7;
+  color: rgb(var(--c-primary) / 0.9);
+}
+
+.prose a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgb(var(--c-accent) / 0.3);
+  transition: text-decoration-color 0.2s;
+}
+
+.prose a:hover {
+  text-decoration-color: rgb(var(--c-accent));
+}
+
+.prose blockquote {
+  border-left-width: 2px;
+  border-left-color: rgb(var(--c-accent) / 0.3);
+  font-style: italic;
+  padding-left: 1.25em;
+  color: rgb(var(--c-muted));
+}
+
+.prose strong {
+  font-weight: 600;
+  color: rgb(var(--c-primary));
+}
+
+.prose code {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.85em;
+  padding: 0.15em 0.35em;
+  border-radius: 0.25rem;
+  background-color: rgb(var(--c-elevated));
+}
+
+.prose pre {
+  background-color: rgb(var(--c-surface)) !important;
+  border: 1px solid rgb(var(--c-border) / 0.5);
+  border-radius: 0.5rem;
+}
+
+.prose pre code {
+  background: none;
+  padding: 0;
+}
+
+.prose ol > li::marker {
+  color: rgb(var(--c-accent) / 0.7);
+  font-weight: 600;
+}
+
+.prose hr {
+  border-color: rgb(var(--c-border) / 0.3);
+  margin: 2.5em 0;
+}
+
+.prose em {
+  color: rgb(var(--c-muted));
+}
+
+/* ======================================================================
+   READING PROGRESS BAR
+   ====================================================================== */
+
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 1.5px;
+  background: linear-gradient(
+    90deg,
+    rgb(var(--c-accent)),
+    rgb(var(--c-accent-alt))
+  );
+  z-index: 100;
+  transition: width 0.1s linear;
+}
+
+/* ======================================================================
+   SMOOTH SCROLLING
+   ====================================================================== */
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
