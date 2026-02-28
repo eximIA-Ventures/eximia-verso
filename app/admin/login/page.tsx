@@ -1,8 +1,8 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { Suspense, useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import { createClient, nukeSupabaseSession } from "@/lib/supabase/client";
 
 export default function LoginPage() {
   return (
@@ -13,7 +13,6 @@ export default function LoginPage() {
 }
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/admin";
 
@@ -22,12 +21,25 @@ function LoginForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // On mount: nuke any stale session data so the Supabase client
+  // singleton never sees a corrupted refresh token.
+  useEffect(() => {
+    nukeSupabaseSession();
+  }, []);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
 
+    // Belt-and-suspenders: clear again right before creating the client
+    nukeSupabaseSession();
+
     const supabase = createClient();
+
+    // Force the singleton to drop any in-memory session
+    await supabase.auth.signOut({ scope: "local" });
+
     const { error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,

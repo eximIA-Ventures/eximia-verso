@@ -17,10 +17,50 @@ export function createClient() {
   );
 }
 
-// Prevent infinite refresh_token retry loops (429/400 → clear session)
+/**
+ * Clear all Supabase session data from the browser (call BEFORE creating
+ * a new client when you know the session is corrupted).
+ */
+export function nukeSupabaseSession() {
+  if (typeof window === "undefined") return;
+
+  const projectId = process.env.NEXT_PUBLIC_SUPABASE_URL?.match(
+    /https:\/\/([^.]+)\./
+  )?.[1];
+
+  // localStorage
+  Object.keys(localStorage).forEach((key) => {
+    if (
+      (projectId && key.includes(projectId)) ||
+      key.startsWith("sb-")
+    ) {
+      localStorage.removeItem(key);
+    }
+  });
+
+  // Cookies — must match path AND secure attributes
+  document.cookie.split(";").forEach((c) => {
+    const name = c.split("=")[0].trim();
+    if (
+      (projectId && name.includes(projectId)) ||
+      name.startsWith("sb-")
+    ) {
+      // Try multiple combinations to ensure deletion
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; Secure`;
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; Secure; SameSite=Lax`;
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Fetch wrapper: breaks the internal Supabase refresh → removeSession → retry
+// loop by BLOCKING requests at the network level after repeated failures.
+// ---------------------------------------------------------------------------
 function createFetchWithRetryLimit() {
   let refreshFailCount = 0;
-  const MAX_REFRESH_FAILURES = 3;
+  let refreshBlocked = false;
+  const MAX_REFRESH_FAILURES = 2;
 
   return async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = typeof input === "string" ? input : input.toString();
@@ -28,52 +68,36 @@ function createFetchWithRetryLimit() {
       url.includes("/auth/v1/token") &&
       url.includes("grant_type=refresh_token");
 
+    // ── BLOCKED: return instantly, never hit the network ──
+    if (isRefreshRequest && refreshBlocked) {
+      return new Response(
+        JSON.stringify({
+          error: "refresh_token_not_found",
+          error_description: "Refresh blocked — session cleared",
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
     const response = await fetch(input, init);
 
     if (isRefreshRequest) {
       if (response.status === 429 || response.status === 400) {
         refreshFailCount++;
         if (refreshFailCount >= MAX_REFRESH_FAILURES) {
-          if (typeof window !== "undefined") {
-            clearSupabaseSession();
-            console.warn(
-              "[Verso] Session refresh failed %d times. Cleared corrupted session.",
-              refreshFailCount
-            );
-            refreshFailCount = 0;
-            // Only hard-redirect if NOT already on the login page
-            if (!window.location.pathname.includes("/login")) {
-              window.location.href = "/admin/login";
-            }
-          }
+          refreshBlocked = true;
+          nukeSupabaseSession();
+          console.warn(
+            "[Verso] Refresh blocked after %d failures. Session cleared.",
+            refreshFailCount
+          );
         }
       } else if (response.ok) {
         refreshFailCount = 0;
+        refreshBlocked = false;
       }
     }
 
     return response;
   };
-}
-
-function clearSupabaseSession() {
-  const projectId = process.env.NEXT_PUBLIC_SUPABASE_URL?.match(
-    /https:\/\/([^.]+)\./
-  )?.[1];
-  if (!projectId) return;
-
-  // Clear localStorage
-  Object.keys(localStorage).forEach((key) => {
-    if (key.includes(projectId) || key.startsWith("sb-")) {
-      localStorage.removeItem(key);
-    }
-  });
-
-  // Clear cookies (Supabase SSR stores session here)
-  document.cookie.split(";").forEach((c) => {
-    const name = c.split("=")[0].trim();
-    if (name.includes(projectId) || name.startsWith("sb-")) {
-      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
-    }
-  });
 }
