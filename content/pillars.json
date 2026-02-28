@@ -21,10 +21,10 @@
     "color": "amber"
   },
   {
-    "id": "agribusiness",
-    "name": "Agronegocio & Inovacao",
-    "description": "Onde tecnologia encontra o campo. AgTech, dados no agro e o futuro da cadeia produtiva.",
-    "icon": "wheat",
+    "id": "market-trends",
+    "name": "Mercado & Tendencias",
+    "description": "Sinais de mercado, macrotendencias e o que os dados dizem antes do consenso chegar.",
+    "icon": "trending-up",
     "color": "green"
   }
 ]

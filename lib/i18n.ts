@@ -97,7 +97,7 @@ const translations = {
       "Escrevemos para quem precisa agir, não para quem quer apenas se manter atualizado.",
     "why.territory.title": "Quatro territórios",
     "why.territory.description":
-      "IA & estratégia, negócios, tecnologia e agronegócio — pela lente de quem decide.",
+      "IA & estratégia, negócios, tecnologia e mercado — pela lente de quem decide.",
 
     // Methodology
     "method.title": "Como pesquisamos",
@@ -189,7 +189,7 @@ const translations = {
       "We write for those who need to act, not for those who just want to stay updated.",
     "why.territory.title": "Four territories",
     "why.territory.description":
-      "AI & strategy, business, technology and agribusiness — through the lens of decision-makers.",
+      "AI & strategy, business, technology and markets — through the lens of decision-makers.",
 
     "method.title": "How we research",
     "method.step1": "Primary sources",
@@ -279,7 +279,7 @@ const translations = {
       "Escribimos para quienes necesitan actuar, no para quienes solo quieren estar al día.",
     "why.territory.title": "Cuatro territorios",
     "why.territory.description":
-      "IA y estrategia, negocios, tecnología y agroindustria — por la lente de quien decide.",
+      "IA y estrategia, negocios, tecnología y mercados — por la lente de quien decide.",
 
     "method.title": "Cómo investigamos",
     "method.step1": "Fuentes primarias",

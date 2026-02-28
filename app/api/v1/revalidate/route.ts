@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Revalidar todas as pillar pages
-    const pillars = ["ai-strategy", "business", "technology", "agribusiness"];
+    const pillars = ["ai-strategy", "business", "technology", "market-trends"];
     for (const p of pillars) {
       revalidatePath(`/pillars/${p}`);
     }

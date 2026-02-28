@@ -26,11 +26,11 @@ export const PILLARS: Pillar[] = [
     color: "amber",
   },
   {
-    id: "agribusiness",
-    name: "Agronegócio & Inovação",
+    id: "market-trends",
+    name: "Mercado & Tendências",
     description:
-      "Onde tecnologia encontra o campo. AgTech, dados no agro e o futuro da cadeia produtiva.",
-    icon: "wheat",
+      "Sinais de mercado, macrotendências e o que os dados dizem antes do consenso chegar.",
+    icon: "trending-up",
     color: "green",
   },
 ];

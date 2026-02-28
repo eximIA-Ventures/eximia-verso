@@ -2,7 +2,7 @@ import {
   Brain,
   BarChart3,
   Zap,
-  Wheat,
+  TrendingUp,
   type LucideIcon,
 } from "lucide-react";
 
@@ -10,7 +10,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   brain: Brain,
   "bar-chart-3": BarChart3,
   zap: Zap,
-  wheat: Wheat,
+  "trending-up": TrendingUp,
 };
 
 interface PillarIconProps {
