@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { PILLARS } from "@/lib/pillars-config";
+import { useToast } from "@/components/admin/Toast";
 import {
   Save,
   Send,
@@ -13,6 +14,8 @@ import {
   EyeOff,
   Archive,
   RotateCcw,
+  Eye,
+  Star,
 } from "lucide-react";
 
 interface ArticleData {
@@ -27,6 +30,8 @@ interface ArticleData {
   hero_image: string;
   reading_time: number;
   status: "draft" | "published" | "archived";
+  publish_date: string;
+  featured: boolean;
   sources: { title: string; url: string }[];
 }
 
@@ -49,6 +54,14 @@ function estimateReadingTime(content: string): number {
   return Math.max(1, Math.ceil(words / 200));
 }
 
+function toLocalDatetime(iso: string): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 const STATUS_CONFIG = {
   draft: { label: "Rascunho", color: "bg-amber-400/10 text-amber-400 border-amber-400/20" },
   published: { label: "Publicado", color: "bg-green-400/10 text-green-400 border-green-400/20" },
@@ -57,6 +70,7 @@ const STATUS_CONFIG = {
 
 export function ArticleForm({ initialData, mode }: Props) {
   const router = useRouter();
+  const toast = useToast();
 
   const [form, setForm] = useState<ArticleData>(
     initialData ?? {
@@ -70,15 +84,49 @@ export function ArticleForm({ initialData, mode }: Props) {
       hero_image: "",
       reading_time: 0,
       status: "draft",
+      publish_date: "",
+      featured: false,
       sources: [],
     }
   );
   const [tagsInput, setTagsInput] = useState(initialData?.tags.join(", ") ?? "");
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
   const [autoSlug, setAutoSlug] = useState(mode === "create");
   const [insertingImage, setInsertingImage] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewHtml, setPreviewHtml] = useState("");
+  const [previewLoading, setPreviewLoading] = useState(false);
   const contentRef = useRef<HTMLTextAreaElement>(null);
+
+  // MDX preview with debounce
+  const fetchPreview = useCallback(async (mdx: string) => {
+    if (!mdx.trim()) {
+      setPreviewHtml("");
+      return;
+    }
+    setPreviewLoading(true);
+    try {
+      const res = await fetch("/api/admin/preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: mdx }),
+      });
+      if (res.ok) {
+        const { html } = await res.json();
+        setPreviewHtml(html);
+      }
+    } catch {
+      // Silent fail on preview
+    } finally {
+      setPreviewLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!showPreview) return;
+    const timer = setTimeout(() => fetchPreview(form.content), 500);
+    return () => clearTimeout(timer);
+  }, [form.content, showPreview, fetchPreview]);
 
   function updateField<K extends keyof ArticleData>(key: K, value: ArticleData[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -121,6 +169,11 @@ export function ArticleForm({ initialData, mode }: Props) {
 
     const status = statusOverride ?? form.status;
 
+    let publishDate = form.publish_date || null;
+    if (status === "published" && !publishDate) {
+      publishDate = new Date().toISOString();
+    }
+
     return {
       title: form.title,
       slug: form.slug,
@@ -132,13 +185,13 @@ export function ArticleForm({ initialData, mode }: Props) {
       hero_image: form.hero_image || null,
       reading_time: form.reading_time,
       status,
+      publish_date: publishDate,
+      featured: form.featured,
       sources: form.sources.filter((s) => s.title || s.url),
-      ...(status === "published" ? { publish_date: new Date().toISOString() } : {}),
     };
   }
 
   async function saveArticle(statusOverride?: "draft" | "published" | "archived") {
-    setError("");
     setSaving(true);
 
     const supabase = createClient();
@@ -147,7 +200,7 @@ export function ArticleForm({ initialData, mode }: Props) {
     if (mode === "create") {
       const { error: err } = await supabase.from("articles").insert(payload);
       if (err) {
-        setError(err.message);
+        toast.error(`Erro ao salvar: ${err.message}`);
         setSaving(false);
         return;
       }
@@ -157,7 +210,7 @@ export function ArticleForm({ initialData, mode }: Props) {
         .update(payload)
         .eq("id", form.id);
       if (err) {
-        setError(err.message);
+        toast.error(`Erro ao salvar: ${err.message}`);
         setSaving(false);
         return;
       }
@@ -174,16 +227,29 @@ export function ArticleForm({ initialData, mode }: Props) {
       // Non-blocking
     }
 
+    const actionLabel = statusOverride === "published"
+      ? "Artigo publicado"
+      : statusOverride === "draft"
+        ? "Artigo despublicado"
+        : statusOverride === "archived"
+          ? "Artigo arquivado"
+          : "Artigo salvo";
+
+    toast.success(actionLabel);
     setSaving(false);
     router.push("/admin/articles");
     router.refresh();
   }
 
   async function handleDelete() {
-    if (!form.id || !confirm("Deletar este artigo permanentemente?")) return;
+    if (!form.id) return;
 
     const supabase = createClient();
-    await supabase.from("articles").delete().eq("id", form.id);
+    const { error: err } = await supabase.from("articles").delete().eq("id", form.id);
+    if (err) {
+      toast.error(`Erro ao deletar: ${err.message}`);
+      return;
+    }
 
     try {
       await fetch("/api/v1/revalidate", {
@@ -193,6 +259,7 @@ export function ArticleForm({ initialData, mode }: Props) {
       });
     } catch {}
 
+    toast.success("Artigo deletado");
     router.push("/admin/articles");
     router.refresh();
   }
@@ -207,7 +274,7 @@ export function ArticleForm({ initialData, mode }: Props) {
       .upload(fileName, file);
 
     if (uploadError) {
-      setError(`Upload falhou: ${uploadError.message}`);
+      toast.error(`Upload falhou: ${uploadError.message}`);
       return null;
     }
 
@@ -215,6 +282,7 @@ export function ArticleForm({ initialData, mode }: Props) {
       .from("article-images")
       .getPublicUrl(fileName);
 
+    toast.success("Imagem enviada");
     return urlData.publicUrl;
   }
 
@@ -266,7 +334,7 @@ export function ArticleForm({ initialData, mode }: Props) {
   const statusCfg = STATUS_CONFIG[form.status];
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-5xl">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -355,12 +423,6 @@ export function ArticleForm({ initialData, mode }: Props) {
         )}
       </div>
 
-      {error && (
-        <div className="mb-4 rounded-md border border-red-400/30 bg-red-400/5 px-4 py-2 text-sm text-red-400">
-          {error}
-        </div>
-      )}
-
       <div className="space-y-6">
         {/* Title */}
         <div>
@@ -441,6 +503,39 @@ export function ArticleForm({ initialData, mode }: Props) {
           </div>
         </div>
 
+        {/* Publish date + Featured row */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="mb-1 block text-xs text-muted">Data de publicacao</label>
+            <input
+              type="datetime-local"
+              value={toLocalDatetime(form.publish_date)}
+              onChange={(e) =>
+                updateField(
+                  "publish_date",
+                  e.target.value ? new Date(e.target.value).toISOString() : ""
+                )
+              }
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
+            />
+            <p className="mt-1 text-[10px] text-muted">
+              Vazio = auto-fill ao publicar
+            </p>
+          </div>
+          <div className="flex items-center">
+            <label className="flex items-center gap-2 cursor-pointer rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-primary transition-colors hover:bg-elevated">
+              <input
+                type="checkbox"
+                checked={form.featured}
+                onChange={(e) => updateField("featured", e.target.checked)}
+                className="accent-accent"
+              />
+              <Star size={14} className={form.featured ? "text-amber-400" : "text-muted"} />
+              Marcar como destaque
+            </label>
+          </div>
+        </div>
+
         {/* Tags */}
         <div>
           <label className="mb-1 block text-xs text-muted">
@@ -488,46 +583,89 @@ export function ArticleForm({ initialData, mode }: Props) {
           )}
         </div>
 
-        {/* Content (MDX) */}
+        {/* Content (MDX) with preview toggle */}
         <div>
           <div className="mb-1 flex items-center justify-between">
             <label className="text-xs text-muted">Conteudo (MDX)</label>
-            <span className="text-[10px] text-muted">
-              ~{form.reading_time} min leitura
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] text-muted">
+                ~{form.reading_time} min leitura
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowPreview(!showPreview)}
+                className={`flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-colors ${
+                  showPreview
+                    ? "bg-accent/10 text-accent"
+                    : "text-muted hover:text-primary"
+                }`}
+              >
+                <Eye size={12} />
+                Preview
+              </button>
+            </div>
           </div>
-          {/* Toolbar */}
-          <div className="flex items-center gap-1 rounded-t-lg border border-b-0 border-border bg-elevated px-2 py-1.5">
-            <label
-              className={`flex cursor-pointer items-center gap-1.5 rounded px-2 py-1 text-xs transition-colors ${
-                insertingImage
-                  ? "text-accent"
-                  : "text-muted hover:bg-surface hover:text-primary"
-              }`}
-            >
-              {insertingImage ? (
-                <Loader2 size={14} className="animate-spin" />
-              ) : (
-                <ImagePlus size={14} />
-              )}
-              {insertingImage ? "Enviando..." : "Inserir imagem"}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleInsertImage}
-                disabled={insertingImage}
-                className="hidden"
+
+          <div className={showPreview ? "grid grid-cols-2 gap-4" : ""}>
+            {/* Editor */}
+            <div>
+              {/* Toolbar */}
+              <div className="flex items-center gap-1 rounded-t-lg border border-b-0 border-border bg-elevated px-2 py-1.5">
+                <label
+                  className={`flex cursor-pointer items-center gap-1.5 rounded px-2 py-1 text-xs transition-colors ${
+                    insertingImage
+                      ? "text-accent"
+                      : "text-muted hover:bg-surface hover:text-primary"
+                  }`}
+                >
+                  {insertingImage ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <ImagePlus size={14} />
+                  )}
+                  {insertingImage ? "Enviando..." : "Inserir imagem"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleInsertImage}
+                    disabled={insertingImage}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+              <textarea
+                ref={contentRef}
+                value={form.content}
+                onChange={(e) => updateField("content", e.target.value)}
+                placeholder="Escreva em Markdown/MDX..."
+                rows={20}
+                className="w-full rounded-b-lg rounded-t-none border border-border bg-surface px-3 py-2.5 font-mono text-sm text-primary outline-none transition-colors focus:border-accent"
               />
-            </label>
+            </div>
+
+            {/* Preview pane */}
+            {showPreview && (
+              <div className="overflow-auto rounded-lg border border-border bg-surface p-4">
+                {previewLoading && (
+                  <div className="flex items-center gap-2 text-xs text-muted">
+                    <Loader2 size={14} className="animate-spin" />
+                    Compilando...
+                  </div>
+                )}
+                {!previewLoading && previewHtml && (
+                  <div
+                    className="prose"
+                    dangerouslySetInnerHTML={{ __html: previewHtml }}
+                  />
+                )}
+                {!previewLoading && !previewHtml && (
+                  <p className="text-xs text-muted">
+                    Comece a escrever para ver o preview.
+                  </p>
+                )}
+              </div>
+            )}
           </div>
-          <textarea
-            ref={contentRef}
-            value={form.content}
-            onChange={(e) => updateField("content", e.target.value)}
-            placeholder="Escreva em Markdown/MDX..."
-            rows={20}
-            className="w-full rounded-b-lg rounded-t-none border border-border bg-surface px-3 py-2.5 font-mono text-sm text-primary outline-none transition-colors focus:border-accent"
-          />
         </div>
 
         {/* Sources */}

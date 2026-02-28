@@ -40,6 +40,7 @@ export interface ArticleRow {
   hero_image: string | null;
   reading_time: number;
   status: "draft" | "published" | "archived";
+  featured: boolean;
   sources: { title: string; url: string }[];
   created_at: string;
   updated_at: string;

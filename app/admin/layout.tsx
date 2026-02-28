@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -8,19 +9,25 @@ import {
   LogOut,
   ExternalLink,
   Home,
+  Users,
+  Menu,
+  X,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { EximiaLogoFull } from "@/components/EximiaLogoFull";
+import { ToastProvider } from "@/components/admin/Toast";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Home", icon: Home },
   { href: "/admin/articles", label: "Artigos", icon: FileText },
   { href: "/admin/media", label: "Media", icon: Image },
+  { href: "/admin/subscribers", label: "Subscribers", icon: Users },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   if (pathname === "/admin/login") {
     return <>{children}</>;
@@ -33,13 +40,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     router.refresh();
   }
 
-  return (
-    <div className="flex min-h-screen bg-bg">
-      {/* Sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-30 flex w-56 flex-col border-r border-border bg-surface">
+  function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
+    return (
+      <>
         {/* Logo */}
         <div className="flex h-14 items-center border-b border-border px-4">
-          <Link href="/admin" className="flex items-center gap-2.5 group">
+          <Link href="/admin" className="flex items-center gap-2.5 group" onClick={onNavClick}>
             <span className="text-sm font-semibold uppercase tracking-[0.25em]">
               Verso
             </span>
@@ -61,6 +67,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={onNavClick}
                 className={`flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors ${
                   isActive
                     ? "bg-accent/10 text-accent"
@@ -96,10 +103,52 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             Sair
           </button>
         </div>
-      </aside>
+      </>
+    );
+  }
 
-      {/* Main content */}
-      <main className="ml-56 flex-1 p-6">{children}</main>
-    </div>
+  return (
+    <ToastProvider>
+      <div className="flex min-h-screen bg-bg">
+        {/* Desktop sidebar */}
+        <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 flex-col border-r border-border bg-surface md:flex">
+          <SidebarContent />
+        </aside>
+
+        {/* Mobile hamburger */}
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="fixed left-3 top-3 z-40 rounded-md border border-border bg-surface p-2 text-muted md:hidden"
+          aria-label="Abrir menu"
+        >
+          <Menu size={20} />
+        </button>
+
+        {/* Mobile overlay sidebar */}
+        {sidebarOpen && (
+          <>
+            {/* Backdrop */}
+            <div
+              className="fixed inset-0 z-40 bg-black/50 md:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+            {/* Sidebar panel */}
+            <aside className="fixed inset-y-0 left-0 z-50 flex w-56 flex-col border-r border-border bg-surface md:hidden animate-in slide-in-from-left duration-200">
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="absolute right-2 top-3 rounded-md p-1.5 text-muted hover:text-primary"
+                aria-label="Fechar menu"
+              >
+                <X size={18} />
+              </button>
+              <SidebarContent onNavClick={() => setSidebarOpen(false)} />
+            </aside>
+          </>
+        )}
+
+        {/* Main content */}
+        <main className="flex-1 p-6 pt-14 md:ml-56 md:pt-6">{children}</main>
+      </div>
+    </ToastProvider>
   );
 }

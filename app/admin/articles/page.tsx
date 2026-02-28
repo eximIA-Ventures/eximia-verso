@@ -1,18 +1,70 @@
-import { createClient } from "@/lib/supabase/server";
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Plus } from "lucide-react";
-import type { ArticleRow } from "@/lib/types";
+import { Plus, Search, Star } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { PILLARS } from "@/lib/pillars-config";
 
-export const dynamic = "force-dynamic";
+interface ArticleRow {
+  id: string;
+  title: string;
+  slug: string;
+  pillar: string;
+  status: "draft" | "published" | "archived";
+  featured: boolean;
+  updated_at: string;
+}
 
-export default async function AdminArticlesPage() {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("articles")
-    .select("*")
-    .order("updated_at", { ascending: false });
+type StatusFilter = "all" | "draft" | "published" | "archived";
 
-  const articles = (data ?? []) as ArticleRow[];
+const STATUS_COLORS: Record<string, string> = {
+  published: "bg-green-400/10 text-green-400",
+  draft: "bg-amber-400/10 text-amber-400",
+  archived: "bg-muted/10 text-muted",
+};
+
+export default function AdminArticlesPage() {
+  const [articles, setArticles] = useState<ArticleRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [pillarFilter, setPillarFilter] = useState("");
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    async function load() {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from("articles")
+        .select("id, title, slug, pillar, status, featured, updated_at")
+        .order("updated_at", { ascending: false });
+      setArticles((data ?? []) as ArticleRow[]);
+      setLoading(false);
+    }
+    load();
+  }, []);
+
+  const counts = {
+    all: articles.length,
+    draft: articles.filter((a) => a.status === "draft").length,
+    published: articles.filter((a) => a.status === "published").length,
+    archived: articles.filter((a) => a.status === "archived").length,
+  };
+
+  const filtered = articles.filter((a) => {
+    if (statusFilter !== "all" && a.status !== statusFilter) return false;
+    if (pillarFilter && a.pillar !== pillarFilter) return false;
+    if (search && !a.title.toLowerCase().includes(search.toLowerCase()))
+      return false;
+    return true;
+  });
+
+  const STATUS_PILLS: { key: StatusFilter; label: string }[] = [
+    { key: "all", label: "Todos" },
+    { key: "draft", label: "Rascunhos" },
+    { key: "published", label: "Publicados" },
+    { key: "archived", label: "Arquivados" },
+  ];
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -30,54 +82,113 @@ export default async function AdminArticlesPage() {
         </Link>
       </div>
 
-      <div className="rounded-lg border border-border bg-surface">
-        {articles.length === 0 ? (
-          <div className="px-4 py-16 text-center">
-            <p className="mb-3 text-sm text-muted">Nenhum artigo criado.</p>
-            <Link
-              href="/admin/articles/new"
-              className="text-sm text-accent hover:underline"
+      {/* Filters */}
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        {/* Status pills */}
+        <div className="flex gap-1 rounded-lg border border-border bg-surface p-1">
+          {STATUS_PILLS.map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setStatusFilter(key)}
+              className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
+                statusFilter === key
+                  ? "bg-accent/10 text-accent"
+                  : "text-muted hover:text-primary"
+              }`}
             >
-              Criar primeiro artigo
-            </Link>
+              {label}
+              <span className="ml-1 text-[10px] opacity-60">{counts[key]}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Pillar dropdown */}
+        <select
+          value={pillarFilter}
+          onChange={(e) => setPillarFilter(e.target.value)}
+          className="rounded-lg border border-border bg-surface px-3 py-1.5 text-xs text-primary outline-none"
+        >
+          <option value="">Todos os pilares</option>
+          {PILLARS.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name}
+            </option>
+          ))}
+        </select>
+
+        {/* Search */}
+        <div className="relative flex-1 min-w-[180px]">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar por titulo..."
+            className="w-full rounded-lg border border-border bg-surface py-1.5 pl-8 pr-3 text-xs text-primary outline-none transition-colors focus:border-accent"
+          />
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="rounded-lg border border-border bg-surface">
+        {loading ? (
+          <div className="px-4 py-16 text-center text-sm text-muted">Carregando...</div>
+        ) : filtered.length === 0 ? (
+          <div className="px-4 py-16 text-center">
+            <p className="mb-3 text-sm text-muted">
+              {articles.length === 0
+                ? "Nenhum artigo criado."
+                : "Nenhum artigo encontrado com esses filtros."}
+            </p>
+            {articles.length === 0 && (
+              <Link
+                href="/admin/articles/new"
+                className="text-sm text-accent hover:underline"
+              >
+                Criar primeiro artigo
+              </Link>
+            )}
           </div>
         ) : (
           <table className="w-full">
             <thead>
               <tr className="border-b border-border text-left text-xs text-muted">
                 <th className="px-4 py-3 font-medium">Titulo</th>
-                <th className="px-4 py-3 font-medium">Pilar</th>
+                <th className="hidden px-4 py-3 font-medium sm:table-cell">Pilar</th>
                 <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium">Atualizado</th>
+                <th className="hidden px-4 py-3 font-medium sm:table-cell">Atualizado</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {articles.map((article) => (
+              {filtered.map((article) => (
                 <tr key={article.id} className="transition-colors hover:bg-elevated">
                   <td className="px-4 py-3">
-                    <Link
-                      href={`/admin/articles/${article.id}/edit`}
-                      className="text-sm font-medium hover:text-accent"
-                    >
-                      {article.title || "Sem titulo"}
-                    </Link>
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/admin/articles/${article.id}/edit`}
+                        className="text-sm font-medium hover:text-accent"
+                      >
+                        {article.title || "Sem titulo"}
+                      </Link>
+                      {article.featured && (
+                        <Star size={12} className="shrink-0 text-amber-400" fill="currentColor" />
+                      )}
+                    </div>
                     <p className="text-xs text-muted">{article.slug}</p>
                   </td>
-                  <td className="px-4 py-3 text-xs text-muted">{article.pillar}</td>
+                  <td className="hidden px-4 py-3 text-xs text-muted sm:table-cell">
+                    {PILLARS.find((p) => p.id === article.pillar)?.name ?? article.pillar}
+                  </td>
                   <td className="px-4 py-3">
                     <span
                       className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                        article.status === "published"
-                          ? "bg-green-400/10 text-green-400"
-                          : article.status === "draft"
-                            ? "bg-amber-400/10 text-amber-400"
-                            : "bg-muted/10 text-muted"
+                        STATUS_COLORS[article.status] ?? ""
                       }`}
                     >
                       {article.status}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-xs text-muted">
+                  <td className="hidden px-4 py-3 text-xs text-muted sm:table-cell">
                     {new Date(article.updated_at).toLocaleDateString("pt-BR")}
                   </td>
                 </tr>

@@ -38,6 +38,8 @@ export default async function EditArticlePage({ params }: PageProps) {
         hero_image: row.hero_image ?? "",
         reading_time: row.reading_time,
         status: row.status,
+        publish_date: row.publish_date ?? "",
+        featured: row.featured ?? false,
         sources: row.sources ?? [],
       }}
     />

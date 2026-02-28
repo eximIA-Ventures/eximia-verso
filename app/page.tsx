@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { getAllArticles } from "@/lib/articles";
+import { getAllArticles, getFeaturedArticle } from "@/lib/articles";
 import { ArticleCard, FeaturedArticleCard } from "@/components/ArticleCard";
 import { PillarIcon } from "@/components/PillarIcon";
 import { T } from "@/components/T";
@@ -13,8 +13,9 @@ export const revalidate = 60;
 
 export default async function HomePage() {
   const articles = await getAllArticles();
-  const featured = articles[0];
-  const recent = articles.slice(1, 7);
+  const featuredArticle = await getFeaturedArticle();
+  const featured = featuredArticle ?? articles[0];
+  const recent = articles.filter((a) => a.slug !== featured?.slug).slice(0, 6);
 
   return (
     <>

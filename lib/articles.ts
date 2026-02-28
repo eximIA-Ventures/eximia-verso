@@ -58,6 +58,21 @@ export async function getArticleSlugs(): Promise<string[]> {
   return (data as { slug: string }[]).map((r) => r.slug);
 }
 
+export async function getFeaturedArticle(): Promise<ArticleMeta | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("articles")
+    .select("*")
+    .eq("status", "published")
+    .eq("featured", true)
+    .order("publish_date", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !data) return null;
+  return rowToMeta(data as ArticleRow);
+}
+
 import { PILLARS } from "./pillars-config";
 export function getPillars() {
   return PILLARS;
