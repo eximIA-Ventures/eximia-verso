@@ -80,6 +80,34 @@ export default function AboutPage() {
           Se quer a perspectiva que muda como você pensa sobre o problema
           &mdash; está no lugar certo.
         </p>
+
+        <h2>Por que Verso</h2>
+
+        <p>
+          Em tipografia, <em>verso</em> é a página esquerda de um livro
+          &mdash; o lado oposto ao <em>recto</em>, a página que aparece
+          primeiro. O verso é o que está por trás. O outro lado. O que a
+          maioria não vê porque parou na superfície.
+        </p>
+
+        <p>
+          Escolhemos esse nome porque é exatamente o que a Verso se propõe a
+          ser: <strong>a perspectiva do outro lado</strong>. Num mercado
+          saturado de consenso reciclado e manchetes que confundem novidade com
+          relevância, a Verso existe para virar a página &mdash; literalmente
+          &mdash; e mostrar o que está atrás do óbvio.
+        </p>
+
+        <p>
+          Enquanto o <em>recto</em> é o que todo mundo lê, o <em>verso</em> é
+          onde mora a profundidade. A análise que exige mais do que um scroll.
+          A posição que incomoda quem prefere o conforto do consenso. O dado
+          que muda como você pensa sobre o problema.
+        </p>
+
+        <p>
+          A Verso é o outro lado da história. O lado que importa.
+        </p>
       </div>
 
       <div className="mt-12 rounded-lg border border-border/50 bg-surface/50 p-6">
