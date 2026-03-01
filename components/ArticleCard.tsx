@@ -95,9 +95,14 @@ export function FeaturedArticleCard({ article }: { article: ArticleMeta }) {
             {article.excerpt}
           </p>
 
-          <div className="flex items-center gap-1.5 text-sm font-medium text-accent">
-            <T k="insights.read" />
-            <ArrowUpRight size={14} />
+          <div className="flex items-center justify-between">
+            {article.authors.length > 0 && (
+              <AuthorAvatarSmall authors={article.authors} />
+            )}
+            <div className="flex items-center gap-1.5 text-sm font-medium text-accent">
+              <T k="insights.read" />
+              <ArrowUpRight size={14} />
+            </div>
           </div>
         </article>
       </Link>
@@ -136,6 +141,12 @@ export function FeaturedArticleCard({ article }: { article: ArticleMeta }) {
 
           <div className="flex items-center gap-3 text-xs text-muted/50">
             <span><LocaleDate dateStr={article.publishDate} /></span>
+            {article.authors.length > 0 && (
+              <>
+                <span className="text-border">·</span>
+                <AuthorAvatarSmall authors={article.authors} />
+              </>
+            )}
           </div>
 
           <div className="mt-5 flex items-center gap-1.5 text-xs font-medium text-accent opacity-0 transition-opacity group-hover:opacity-100">
