@@ -2,6 +2,7 @@ import { compileMDX } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypePrettyCode from "rehype-pretty-code";
+import rehypeExternalLinks from "rehype-external-links";
 import GithubSlugger from "github-slugger";
 import type { ReactElement } from "react";
 
@@ -34,6 +35,10 @@ export async function renderMDX(source: string): Promise<ReactElement> {
           remarkPlugins: [remarkGfm],
           rehypePlugins: [
             rehypeSlug,
+            [
+              rehypeExternalLinks,
+              { target: "_blank", rel: ["noopener", "noreferrer"] },
+            ],
             [
               rehypePrettyCode,
               {
