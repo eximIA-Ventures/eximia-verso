@@ -15,13 +15,19 @@ export default async function EditArticlePage({ params }: PageProps) {
 
   const { data, error } = await supabase
     .from("articles")
-    .select("*")
+    .select("*, article_authors(author_id, position)")
     .eq("id", id)
     .single();
 
   if (error || !data) notFound();
 
-  const row = data as ArticleRow;
+  const row = data as ArticleRow & {
+    article_authors?: { author_id: string; position: number }[];
+  };
+
+  const authorIds = (row.article_authors ?? [])
+    .sort((a, b) => a.position - b.position)
+    .map((aa) => aa.author_id);
 
   return (
     <ArticleForm
@@ -35,6 +41,7 @@ export default async function EditArticlePage({ params }: PageProps) {
         pillar: row.pillar,
         tags: row.tags ?? [],
         author: row.author,
+        author_ids: authorIds,
         hero_image: row.hero_image ?? "",
         reading_time: row.reading_time,
         status: row.status,

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-// PATCH /api/admin/articles/[id] — atualizar artigo
+// PATCH /api/admin/authors/[id] — atualizar autor
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -10,12 +10,9 @@ export async function PATCH(
   const body = await request.json();
   const supabase = createAdminClient();
 
-  // Extrair author_ids antes de atualizar
-  const { author_ids, ...articleData } = body;
-
   const { data, error } = await supabase
-    .from("articles")
-    .update(articleData)
+    .from("authors")
+    .update(body)
     .eq("id", id)
     .select()
     .single();
@@ -24,28 +21,10 @@ export async function PATCH(
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
-  // Atualizar vínculos de autores (se enviados)
-  if (author_ids !== undefined) {
-    // Remover vínculos antigos
-    await supabase.from("article_authors").delete().eq("article_id", id);
-
-    // Inserir novos
-    if (author_ids.length > 0) {
-      const links = author_ids.map((authorId: string, idx: number) => ({
-        article_id: id,
-        author_id: authorId,
-        role: "author",
-        position: idx,
-      }));
-
-      await supabase.from("article_authors").insert(links);
-    }
-  }
-
   return NextResponse.json(data);
 }
 
-// DELETE /api/admin/articles/[id] — deletar artigo
+// DELETE /api/admin/authors/[id] — deletar autor
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -53,7 +32,7 @@ export async function DELETE(
   const { id } = await params;
   const supabase = createAdminClient();
 
-  const { error } = await supabase.from("articles").delete().eq("id", id);
+  const { error } = await supabase.from("authors").delete().eq("id", id);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });

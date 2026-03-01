@@ -15,15 +15,24 @@ export default async function ArticleOgImage({
   const supabase = createAdminClient();
   const { data: article } = await supabase
     .from("articles")
-    .select("title, excerpt, pillar, author, hero_image")
+    .select("title, excerpt, pillar, author, hero_image, article_authors(position, authors(name, avatar_url))")
     .eq("slug", slug)
     .single();
 
   const title = article?.title ?? "Verso by exímIA";
   const excerpt = article?.excerpt ?? "";
   const pillar = article?.pillar ?? "";
-  const author = article?.author ?? "Hugo Capitelli";
   const heroImage = article?.hero_image ?? null;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const articleAuthors = ((article as any)?.article_authors ?? [])
+    .sort((a: { position: number }, b: { position: number }) => a.position - b.position)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .map((aa: any) => aa.authors) as { name: string; avatar_url: string | null }[];
+
+  const author = articleAuthors.length > 0
+    ? articleAuthors.map((a) => a.name).join(", ")
+    : (article?.author ?? "Hugo Capitelli");
 
   const pillarLabels: Record<string, string> = {
     "ai-strategy": "IA & Estratégia",
@@ -171,21 +180,33 @@ export default async function ArticleOgImage({
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 18,
-                  background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 16,
-                  fontWeight: 700,
-                  color: "white",
-                }}
-              >
-                {author.charAt(0)}
+              <div style={{ display: "flex" }}>
+                {(articleAuthors.length > 0 ? articleAuthors.slice(0, 3) : [{ name: author, avatar_url: null }]).map((a, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 18,
+                      background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 16,
+                      fontWeight: 700,
+                      color: "white",
+                      marginLeft: i > 0 ? -8 : 0,
+                      border: "2px solid #0a0a0a",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {a.avatar_url ? (
+                      <img src={a.avatar_url} alt="" width={36} height={36} style={{ objectFit: "cover" }} />
+                    ) : (
+                      a.name.charAt(0)
+                    )}
+                  </div>
+                ))}
               </div>
               <span
                 style={{

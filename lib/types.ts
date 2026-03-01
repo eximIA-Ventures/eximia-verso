@@ -1,3 +1,37 @@
+export interface Author {
+  id: string;
+  slug: string;
+  name: string;
+  bio: string;
+  avatarUrl?: string;
+  role: string;
+  socialLinks: Record<string, string>;
+}
+
+export interface AuthorRow {
+  id: string;
+  slug: string;
+  name: string;
+  bio: string;
+  avatar_url: string | null;
+  role: string;
+  social_links: Record<string, string>;
+  created_at: string;
+  updated_at: string;
+}
+
+export function rowToAuthor(row: AuthorRow): Author {
+  return {
+    id: row.id,
+    slug: row.slug,
+    name: row.name,
+    bio: row.bio ?? "",
+    avatarUrl: row.avatar_url ?? undefined,
+    role: row.role,
+    socialLinks: row.social_links ?? {},
+  };
+}
+
 export interface Article {
   slug: string;
   title: string;
@@ -6,6 +40,7 @@ export interface Article {
   tags: string[];
   publishDate: string;
   author: string;
+  authors: Author[];
   heroImage?: string;
   readingTime: number;
   status: "draft" | "published" | "archived";
@@ -21,6 +56,7 @@ export interface ArticleMeta {
   tags: string[];
   publishDate: string;
   author: string;
+  authors: Author[];
   heroImage?: string;
   readingTime: number;
   status: "draft" | "published" | "archived";
@@ -48,7 +84,7 @@ export interface ArticleRow {
 }
 
 // Converter DB row para Article (camelCase)
-export function rowToArticle(row: ArticleRow): Article {
+export function rowToArticle(row: ArticleRow, authors: Author[] = []): Article {
   return {
     slug: row.slug,
     title: row.title,
@@ -57,6 +93,7 @@ export function rowToArticle(row: ArticleRow): Article {
     tags: row.tags ?? [],
     publishDate: row.publish_date ?? "",
     author: row.author,
+    authors,
     heroImage: row.hero_image ?? undefined,
     readingTime: row.reading_time,
     status: row.status,
@@ -65,7 +102,7 @@ export function rowToArticle(row: ArticleRow): Article {
   };
 }
 
-export function rowToMeta(row: ArticleRow): ArticleMeta {
+export function rowToMeta(row: ArticleRow, authors: Author[] = []): ArticleMeta {
   return {
     slug: row.slug,
     title: row.title,
@@ -74,6 +111,7 @@ export function rowToMeta(row: ArticleRow): ArticleMeta {
     tags: row.tags ?? [],
     publishDate: row.publish_date ?? "",
     author: row.author,
+    authors,
     heroImage: row.hero_image ?? undefined,
     readingTime: row.reading_time,
     status: row.status,

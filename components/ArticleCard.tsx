@@ -6,6 +6,7 @@ import { PillarIcon } from "./PillarIcon";
 import { ShareButton } from "./ShareButton";
 import { LocaleDate } from "./LocaleDate";
 import { T } from "./T";
+import { AuthorAvatarSmall } from "./AuthorCard";
 import { getPillarById } from "@/lib/pillars-config";
 import type { ArticleMeta } from "@/lib/types";
 
@@ -54,6 +55,12 @@ export function ArticleCard({ article }: { article: ArticleMeta }) {
           <p className="text-sm leading-relaxed text-muted line-clamp-2">
             {article.excerpt}
           </p>
+
+          {article.authors.length > 0 && (
+            <div className="mt-3 border-t border-border/30 pt-2.5">
+              <AuthorAvatarSmall authors={article.authors} />
+            </div>
+          )}
         </div>
       </article>
     </Link>

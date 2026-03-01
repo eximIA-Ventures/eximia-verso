@@ -17,10 +17,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const url = `https://verso.eximiaventures.com.br/articles/${slug}`;
 
+  const authorNames = article.authors.length > 0
+    ? article.authors.map((a) => a.name)
+    : [article.author];
+
   return {
     title: article.title,
     description: article.excerpt,
-    authors: [{ name: article.author }],
+    authors: authorNames.map((name) => ({ name })),
     openGraph: {
       title: article.title,
       description: article.excerpt,
@@ -28,7 +32,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url,
       siteName: "Verso by exímIA",
       publishedTime: article.publishDate,
-      authors: [article.author],
+      authors: authorNames,
       ...(article.heroImage
         ? { images: [{ url: article.heroImage, width: 1200, height: 630, alt: article.title }] }
         : {}),

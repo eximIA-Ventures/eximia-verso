@@ -1,12 +1,27 @@
 import { createClient } from "./supabase/server";
-import type { Article, ArticleMeta, ArticleRow } from "./types";
-import { rowToArticle, rowToMeta } from "./types";
+import type { Article, ArticleMeta, ArticleRow, Author, AuthorRow } from "./types";
+import { rowToArticle, rowToMeta, rowToAuthor } from "./types";
+
+interface ArticleWithAuthors extends ArticleRow {
+  article_authors: {
+    role: string;
+    position: number;
+    authors: AuthorRow;
+  }[];
+}
+
+function extractAuthors(row: ArticleWithAuthors): Author[] {
+  if (!row.article_authors) return [];
+  return row.article_authors
+    .sort((a, b) => a.position - b.position)
+    .map((aa) => rowToAuthor(aa.authors));
+}
 
 export async function getAllArticles(): Promise<ArticleMeta[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("articles")
-    .select("*")
+    .select("*, article_authors(role, position, authors(*))")
     .eq("status", "published")
     .order("publish_date", { ascending: false });
 
@@ -15,26 +30,29 @@ export async function getAllArticles(): Promise<ArticleMeta[]> {
     return [];
   }
 
-  return (data as ArticleRow[]).map(rowToMeta);
+  return (data as ArticleWithAuthors[]).map((row) =>
+    rowToMeta(row, extractAuthors(row))
+  );
 }
 
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("articles")
-    .select("*")
+    .select("*, article_authors(role, position, authors(*))")
     .eq("slug", slug)
     .single();
 
   if (error || !data) return null;
-  return rowToArticle(data as ArticleRow);
+  const row = data as ArticleWithAuthors;
+  return rowToArticle(row, extractAuthors(row));
 }
 
 export async function getArticlesByPillar(pillar: string): Promise<ArticleMeta[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("articles")
-    .select("*")
+    .select("*, article_authors(role, position, authors(*))")
     .eq("status", "published")
     .eq("pillar", pillar)
     .order("publish_date", { ascending: false });
@@ -44,7 +62,9 @@ export async function getArticlesByPillar(pillar: string): Promise<ArticleMeta[]
     return [];
   }
 
-  return (data as ArticleRow[]).map(rowToMeta);
+  return (data as ArticleWithAuthors[]).map((row) =>
+    rowToMeta(row, extractAuthors(row))
+  );
 }
 
 export async function getArticleSlugs(): Promise<string[]> {
@@ -62,7 +82,7 @@ export async function getFeaturedArticle(): Promise<ArticleMeta | null> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("articles")
-    .select("*")
+    .select("*, article_authors(role, position, authors(*))")
     .eq("status", "published")
     .eq("featured", true)
     .order("publish_date", { ascending: false })
@@ -70,7 +90,8 @@ export async function getFeaturedArticle(): Promise<ArticleMeta | null> {
     .maybeSingle();
 
   if (error || !data) return null;
-  return rowToMeta(data as ArticleRow);
+  const row = data as ArticleWithAuthors;
+  return rowToMeta(row, extractAuthors(row));
 }
 
 import { PILLARS } from "./pillars-config";

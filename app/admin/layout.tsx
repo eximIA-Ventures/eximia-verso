@@ -10,6 +10,7 @@ import {
   ExternalLink,
   Home,
   Users,
+  UserPen,
   Menu,
   X,
 } from "lucide-react";
@@ -20,6 +21,7 @@ import { ToastProvider } from "@/components/admin/Toast";
 const NAV_ITEMS = [
   { href: "/admin", label: "Home", icon: Home },
   { href: "/admin/articles", label: "Artigos", icon: FileText },
+  { href: "/admin/authors", label: "Autores", icon: UserPen },
   { href: "/admin/media", label: "Media", icon: Image },
   { href: "/admin/subscribers", label: "Subscribers", icon: Users },
 ];

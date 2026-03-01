@@ -15,7 +15,15 @@ import {
   RotateCcw,
   Eye,
   Star,
+  X,
 } from "lucide-react";
+
+interface AuthorOption {
+  id: string;
+  name: string;
+  slug: string;
+  avatar_url: string | null;
+}
 
 interface ArticleData {
   id?: string;
@@ -26,6 +34,7 @@ interface ArticleData {
   pillar: string;
   tags: string[];
   author: string;
+  author_ids: string[];
   hero_image: string;
   reading_time: number;
   status: "draft" | "published" | "archived";
@@ -80,6 +89,7 @@ export function ArticleForm({ initialData, mode }: Props) {
       pillar: PILLARS[0].id,
       tags: [],
       author: "eximIA",
+      author_ids: [],
       hero_image: "",
       reading_time: 0,
       status: "draft",
@@ -96,6 +106,17 @@ export function ArticleForm({ initialData, mode }: Props) {
   const [previewHtml, setPreviewHtml] = useState("");
   const [previewLoading, setPreviewLoading] = useState(false);
   const contentRef = useRef<HTMLTextAreaElement>(null);
+
+  // Authors
+  const [allAuthors, setAllAuthors] = useState<AuthorOption[]>([]);
+  const [authorDropdownOpen, setAuthorDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/admin/authors")
+      .then((r) => r.json())
+      .then((data: AuthorOption[]) => setAllAuthors(data))
+      .catch(() => {});
+  }, []);
 
   // MDX preview with debounce
   const fetchPreview = useCallback(async (mdx: string) => {
@@ -181,6 +202,7 @@ export function ArticleForm({ initialData, mode }: Props) {
       pillar: form.pillar,
       tags,
       author: form.author,
+      author_ids: form.author_ids,
       hero_image: form.hero_image || null,
       reading_time: form.reading_time,
       status,
@@ -481,31 +503,117 @@ export function ArticleForm({ initialData, mode }: Props) {
           />
         </div>
 
-        {/* Pillar + Author row */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="mb-1 block text-xs text-muted">Pilar</label>
-            <select
-              value={form.pillar}
-              onChange={(e) => updateField("pillar", e.target.value)}
-              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-            >
-              {PILLARS.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
+        {/* Pillar */}
+        <div>
+          <label className="mb-1 block text-xs text-muted">Pilar</label>
+          <select
+            value={form.pillar}
+            onChange={(e) => updateField("pillar", e.target.value)}
+            className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
+          >
+            {PILLARS.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Authors multi-select */}
+        <div>
+          <label className="mb-1 block text-xs text-muted">Autores</label>
+          {/* Selected authors chips */}
+          <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 min-h-[42px]">
+            {form.author_ids.map((id, idx) => {
+              const author = allAuthors.find((a) => a.id === id);
+              if (!author) return null;
+              return (
+                <span
+                  key={id}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent"
+                >
+                  {author.avatar_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={author.avatar_url} alt="" className="h-4 w-4 rounded-full object-cover" />
+                  ) : null}
+                  {author.name}
+                  {idx > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newIds = [...form.author_ids];
+                        newIds.splice(idx, 1);
+                        newIds.splice(idx - 1, 0, id);
+                        setForm((prev) => ({ ...prev, author_ids: newIds }));
+                      }}
+                      className="text-accent/50 hover:text-accent"
+                      title="Mover para cima"
+                    >
+                      ↑
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setForm((prev) => ({
+                        ...prev,
+                        author_ids: prev.author_ids.filter((aid) => aid !== id),
+                      }));
+                    }}
+                    className="text-accent/50 hover:text-red-400"
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              );
+            })}
+            {/* Dropdown trigger */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setAuthorDropdownOpen(!authorDropdownOpen)}
+                className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted transition-colors hover:bg-elevated hover:text-primary"
+              >
+                + Adicionar autor
+              </button>
+              {authorDropdownOpen && (
+                <div className="absolute left-0 top-full z-20 mt-1 w-56 rounded-lg border border-border bg-bg py-1 shadow-lg">
+                  {allAuthors
+                    .filter((a) => !form.author_ids.includes(a.id))
+                    .map((author) => (
+                      <button
+                        key={author.id}
+                        type="button"
+                        onClick={() => {
+                          setForm((prev) => ({
+                            ...prev,
+                            author_ids: [...prev.author_ids, author.id],
+                            author: prev.author_ids.length === 0 ? author.name : prev.author,
+                          }));
+                          setAuthorDropdownOpen(false);
+                        }}
+                        className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm text-primary transition-colors hover:bg-elevated"
+                      >
+                        {author.avatar_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={author.avatar_url} alt="" className="h-5 w-5 rounded-full object-cover" />
+                        ) : (
+                          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-accent/20 text-[9px] font-bold text-accent">
+                            {author.name.charAt(0)}
+                          </div>
+                        )}
+                        {author.name}
+                      </button>
+                    ))}
+                  {allAuthors.filter((a) => !form.author_ids.includes(a.id)).length === 0 && (
+                    <p className="px-3 py-2 text-xs text-muted">Todos os autores já selecionados</p>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
-          <div>
-            <label className="mb-1 block text-xs text-muted">Autor</label>
-            <input
-              type="text"
-              value={form.author}
-              onChange={(e) => updateField("author", e.target.value)}
-              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-            />
-          </div>
+          {/* Fallback author text (hidden, auto-filled) */}
+          <input type="hidden" value={form.author} />
         </div>
 
         {/* Publish date + Featured row */}

@@ -6,6 +6,7 @@ import { ShareButton } from "./ShareButton";
 import { ReadingProgress } from "./ReadingProgress";
 import { LocaleDate } from "./LocaleDate";
 import { T } from "./T";
+import { AuthorCard } from "./AuthorCard";
 import type { Article } from "@/lib/types";
 import type { TocItem } from "@/lib/mdx";
 
@@ -44,6 +45,12 @@ export function ArticleLayout({ article, toc, children }: ArticleLayoutProps) {
           <p className="text-lg leading-relaxed text-muted">
             {article.excerpt}
           </p>
+
+          {article.authors.length > 0 && (
+            <div className="mt-6 border-t border-border/30 pt-5">
+              <AuthorCard authors={article.authors} />
+            </div>
+          )}
         </header>
 
         {/* Hero Image — full width, Medium style */}
