@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Plus, Search, Star } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 import { PILLARS } from "@/lib/pillars-config";
 
 interface ArticleRow {
@@ -33,12 +32,9 @@ export default function AdminArticlesPage() {
 
   useEffect(() => {
     async function load() {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from("articles")
-        .select("id, title, slug, pillar, status, featured, updated_at")
-        .order("updated_at", { ascending: false });
-      setArticles((data ?? []) as ArticleRow[]);
+      const res = await fetch("/api/admin/articles");
+      const data = await res.json();
+      setArticles(Array.isArray(data) ? data : []);
       setLoading(false);
     }
     load();

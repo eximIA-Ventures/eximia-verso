@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { ArticleForm } from "@/components/admin/ArticleForm";
 import type { ArticleRow } from "@/lib/types";
 
@@ -11,7 +11,7 @@ interface PageProps {
 
 export default async function EditArticlePage({ params }: PageProps) {
   const { id } = await params;
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data, error } = await supabase
     .from("articles")

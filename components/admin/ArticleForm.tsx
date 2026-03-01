@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { PILLARS } from "@/lib/pillars-config";
 import { useToast } from "@/components/admin/Toast";
 import {
@@ -194,26 +193,30 @@ export function ArticleForm({ initialData, mode }: Props) {
   async function saveArticle(statusOverride?: "draft" | "published" | "archived") {
     setSaving(true);
 
-    const supabase = createClient();
     const payload = buildPayload(statusOverride);
 
-    if (mode === "create") {
-      const { error: err } = await supabase.from("articles").insert(payload);
-      if (err) {
-        toast.error(`Erro ao salvar: ${err.message}`);
+    try {
+      const url = mode === "create"
+        ? "/api/admin/articles"
+        : `/api/admin/articles/${form.id}`;
+      const method = mode === "create" ? "POST" : "PATCH";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        toast.error(`Erro ao salvar: ${err.error || "Erro desconhecido"}`);
         setSaving(false);
         return;
       }
-    } else {
-      const { error: err } = await supabase
-        .from("articles")
-        .update(payload)
-        .eq("id", form.id);
-      if (err) {
-        toast.error(`Erro ao salvar: ${err.message}`);
-        setSaving(false);
-        return;
-      }
+    } catch (err) {
+      toast.error(`Erro ao salvar: ${err}`);
+      setSaving(false);
+      return;
     }
 
     // Revalidar cache ISR
@@ -244,10 +247,10 @@ export function ArticleForm({ initialData, mode }: Props) {
   async function handleDelete() {
     if (!form.id) return;
 
-    const supabase = createClient();
-    const { error: err } = await supabase.from("articles").delete().eq("id", form.id);
-    if (err) {
-      toast.error(`Erro ao deletar: ${err.message}`);
+    const res = await fetch(`/api/admin/articles/${form.id}`, { method: "DELETE" });
+    if (!res.ok) {
+      const err = await res.json();
+      toast.error(`Erro ao deletar: ${err.error || "Erro desconhecido"}`);
       return;
     }
 
@@ -265,25 +268,27 @@ export function ArticleForm({ initialData, mode }: Props) {
   }
 
   async function uploadToStorage(file: File): Promise<string | null> {
-    const supabase = createClient();
     const ext = file.name.split(".").pop();
     const fileName = `${form.slug || "upload"}-${Date.now()}.${ext}`;
 
-    const { error: uploadError } = await supabase.storage
-      .from("article-images")
-      .upload(fileName, file);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("fileName", fileName);
 
-    if (uploadError) {
-      toast.error(`Upload falhou: ${uploadError.message}`);
+    const res = await fetch("/api/admin/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      toast.error(`Upload falhou: ${err.error || "Erro desconhecido"}`);
       return null;
     }
 
-    const { data: urlData } = supabase.storage
-      .from("article-images")
-      .getPublicUrl(fileName);
-
+    const { url } = await res.json();
     toast.success("Imagem enviada");
-    return urlData.publicUrl;
+    return url;
   }
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {

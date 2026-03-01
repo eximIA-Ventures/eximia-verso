@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { FileText, Eye, FilePen, Archive, Star, Users } from "lucide-react";
 import Link from "next/link";
 import type { ArticleRow } from "@/lib/types";
@@ -6,7 +6,7 @@ import type { ArticleRow } from "@/lib/types";
 export const dynamic = "force-dynamic";
 
 async function getStats() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { count: total } = await supabase
     .from("articles")
