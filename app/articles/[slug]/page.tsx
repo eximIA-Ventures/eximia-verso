@@ -14,6 +14,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const article = await getArticleBySlug(slug);
   if (!article) return {};
+
+  const url = `https://verso.eximiaventures.com.br/articles/${slug}`;
+
   return {
     title: article.title,
     description: article.excerpt,
@@ -22,9 +25,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: article.title,
       description: article.excerpt,
       type: "article",
+      url,
+      siteName: "Verso by exímIA",
       publishedTime: article.publishDate,
       authors: [article.author],
-      ...(article.heroImage ? { images: [{ url: article.heroImage }] } : {}),
+      ...(article.heroImage
+        ? { images: [{ url: article.heroImage, width: 1200, height: 630, alt: article.title }] }
+        : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: article.title,
+      description: article.excerpt,
+      ...(article.heroImage ? { images: [article.heroImage] } : {}),
     },
   };
 }

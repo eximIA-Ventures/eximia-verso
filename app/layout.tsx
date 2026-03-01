@@ -6,13 +6,14 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { LocaleProvider } from "@/components/LocaleProvider";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://verso.eximiaventures.com.br"),
   title: {
     default: "Verso by exímIA",
     template: "%s | Verso",
   },
   description:
     "Pesquisa verificada sobre como IA está redefinindo estratégia, negócios e mercados. Para quem decide, não para quem assiste.",
-  authors: [{ name: "exímIA" }],
+  authors: [{ name: "Hugo Capitelli" }],
   openGraph: {
     type: "website",
     locale: "pt_BR",
@@ -20,9 +21,13 @@ export const metadata: Metadata = {
     title: "Verso by exímIA",
     description:
       "Pesquisa verificada sobre como IA está redefinindo estratégia, negócios e mercados.",
+    url: "https://verso.eximiaventures.com.br",
   },
   twitter: {
     card: "summary_large_image",
+    title: "Verso by exímIA",
+    description:
+      "Pesquisa verificada sobre como IA está redefinindo estratégia, negócios e mercados.",
   },
 };
 
