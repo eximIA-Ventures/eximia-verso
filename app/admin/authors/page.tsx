@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Plus, Pencil, Trash2, Loader2, X, Upload } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, X, Upload, Linkedin, Twitter, Globe, Mail } from "lucide-react";
 import { useToast } from "@/components/admin/Toast";
 
 interface AuthorData {
@@ -321,6 +321,102 @@ export default function AuthorsPage() {
                     />
                   </div>
                 )}
+              </div>
+
+              {/* Social links */}
+              <div>
+                <div className="mb-2 flex items-center justify-between">
+                  <label className="text-xs text-muted">Links sociais</label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditing({
+                        ...editing,
+                        social_links: { ...editing.social_links, "": "" },
+                      });
+                    }}
+                    className="text-xs text-accent hover:underline"
+                  >
+                    + Adicionar link
+                  </button>
+                </div>
+
+                {/* Quick-add presets */}
+                {(() => {
+                  const existing = Object.keys(editing.social_links).map((k) => k.toLowerCase());
+                  const presets = [
+                    { key: "linkedin", label: "LinkedIn", icon: Linkedin },
+                    { key: "twitter", label: "X / Twitter", icon: Twitter },
+                    { key: "website", label: "Website", icon: Globe },
+                    { key: "email", label: "Email", icon: Mail },
+                  ].filter((p) => !existing.includes(p.key));
+
+                  if (presets.length === 0) return null;
+                  return (
+                    <div className="mb-3 flex flex-wrap gap-1.5">
+                      {presets.map((p) => (
+                        <button
+                          key={p.key}
+                          type="button"
+                          onClick={() => {
+                            setEditing({
+                              ...editing,
+                              social_links: { ...editing.social_links, [p.key]: "" },
+                            });
+                          }}
+                          className="flex items-center gap-1.5 rounded-md border border-border/50 px-2 py-1 text-[11px] text-muted transition-colors hover:bg-elevated hover:text-primary"
+                        >
+                          <p.icon size={12} />
+                          {p.label}
+                        </button>
+                      ))}
+                    </div>
+                  );
+                })()}
+
+                <div className="space-y-2">
+                  {Object.entries(editing.social_links).map(([platform, url], idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={platform}
+                        onChange={(e) => {
+                          const entries = Object.entries(editing.social_links);
+                          entries[idx] = [e.target.value, url];
+                          setEditing({
+                            ...editing,
+                            social_links: Object.fromEntries(entries),
+                          });
+                        }}
+                        placeholder="plataforma"
+                        className="w-28 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-primary outline-none focus:border-accent"
+                      />
+                      <input
+                        type="text"
+                        value={url}
+                        onChange={(e) => {
+                          setEditing({
+                            ...editing,
+                            social_links: { ...editing.social_links, [platform]: e.target.value },
+                          });
+                        }}
+                        placeholder="https://..."
+                        className="flex-1 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-primary outline-none focus:border-accent"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = { ...editing.social_links };
+                          delete updated[platform];
+                          setEditing({ ...editing, social_links: updated });
+                        }}
+                        className="text-muted hover:text-red-400"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
