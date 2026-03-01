@@ -1,5 +1,104 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-02-27",
-  "items": []
+  "lastUpdated": "2026-02-28",
+  "items": [
+    {
+      "id": "cal-001",
+      "title": "A Empresa de Uma Pessoa com +160 Agentes: Como Opero a eximIA sem NENHUM funcionário",
+      "pillar": "ai-strategy",
+      "status": "in-progress",
+      "angle": "Case real. Hugo opera eximIA com J.A.R.V.I.S. + 160+ agentes de IA. Ninguém no Brasil tem esse case documentado.",
+      "keywords": ["empresa de uma pessoa", "AI agents", "solopreneur", "automação com IA", "eximIA"],
+      "sources": [
+        "https://www.zoom.com/en/blog/state-of-solopreneurship-2026/",
+        "https://www.entrepreneur.com/growing-a-business/7-ai-tools-that-run-a-one-person-business-in-2026-no/501943"
+      ],
+      "createdAt": "2026-02-28",
+      "publishDate": null
+    },
+    {
+      "id": "cal-002",
+      "title": "Agentic AI em 2026: De Copiloto a Orquestrador — O Que Muda na Prática",
+      "pillar": "technology",
+      "status": "pending",
+      "angle": "Implementação real — mostrar como orquestra squads de agentes especializados com dados do Gartner (40% dos apps enterprise com agentes até fim de 2026).",
+      "keywords": ["agentic AI", "agentes autônomos", "orquestração IA", "AI agents enterprise"],
+      "sources": [
+        "https://www.gartner.com/en/newsroom/press-releases/2025-08-26-gartner-predicts-40-percent-of-enterprise-apps-will-feature-task-specific-ai-agents-by-2026-up-from-less-than-5-percent-in-2025",
+        "https://www.deloitte.com/us/en/insights/topics/technology-management/tech-trends/2026/agentic-ai-strategy.html"
+      ],
+      "createdAt": "2026-02-28",
+      "publishDate": null
+    },
+    {
+      "id": "cal-003",
+      "title": "Vibe Coding: Programar Descrevendo — O Fim do Código Escrito à Mão?",
+      "pillar": "technology",
+      "status": "pending",
+      "angle": "Prática real + contrapontos honestos. 92% dos devs usam AI coding tools, mas código AI tem 2.74x mais vulnerabilidades. O que funciona E onde quebra.",
+      "keywords": ["vibe coding", "programar com IA", "Claude Code", "Cursor", "desenvolvimento AI"],
+      "sources": [
+        "https://www.secondtalent.com/resources/vibe-coding-statistics/",
+        "https://natively.dev/articles/what-is-vibe-coding"
+      ],
+      "createdAt": "2026-02-28",
+      "publishDate": null
+    },
+    {
+      "id": "cal-004",
+      "title": "IA no Agro 2026: Tratores Autônomos, Bioinsumos e a Fazenda que Pensa",
+      "pillar": "market-trends",
+      "status": "pending",
+      "angle": "Background agro real (Harven Agribusiness). Conecta tech + campo como poucos. Safra 2025/26 pode superar 350M toneladas, 61% das empresas agro querem IA.",
+      "keywords": ["agtech Brasil", "IA agronegócio", "agricultura digital", "tratores autônomos", "agro 2026"],
+      "sources": [
+        "https://www.totvs.com/blog/gestao-agricola/tendencias-agro/",
+        "https://revistacultivar.com.br/artigos/tendencias-do-agronegocio-brasileiro-em-2026"
+      ],
+      "createdAt": "2026-02-28",
+      "publishDate": null
+    },
+    {
+      "id": "cal-005",
+      "title": "77% dos Marketeiros Vão Trocar Creators por IA — E Por Que Isso é Uma Armadilha",
+      "pillar": "business",
+      "status": "pending",
+      "angle": "Posição provocativa — IA sem humano é commodity. O diferencial está no híbrido. Economia criadora atinge $43.9B em 2026.",
+      "keywords": ["creator economy", "IA conteúdo", "marketing IA", "criadores digitais", "inteligência artificial marketing"],
+      "sources": [
+        "https://www.pressrelease.com/news/the-influencer-marketing-factory-releases-2026-creator-economy-report-revealing",
+        "https://digiday.com/marketing/in-graphic-detail-heres-what-the-creator-economy-is-expected-to-look-like-in-2026/"
+      ],
+      "createdAt": "2026-02-28",
+      "publishDate": null
+    },
+    {
+      "id": "cal-006",
+      "title": "O EU AI Act Chegou: O Que Todo Empreendedor Precisa Saber Sobre Regulação de IA",
+      "pillar": "market-trends",
+      "status": "pending",
+      "angle": "Traduzir regulação europeia para o empreendedor brasileiro — multas até €35M ou 7% do faturamento. O que impacta quem exporta ou usa ferramentas globais.",
+      "keywords": ["EU AI Act", "regulação IA", "compliance IA", "governança inteligência artificial"],
+      "sources": [
+        "https://artificialintelligenceact.eu/",
+        "https://www.wsgr.com/en/insights/2026-year-in-preview-ai-regulatory-developments-for-companies-to-watch-out-for.html"
+      ],
+      "createdAt": "2026-02-28",
+      "publishDate": null
+    },
+    {
+      "id": "cal-007",
+      "title": "De R$0 a R$500/mês em IA: O Stack Completo do Solopreneur em 2026",
+      "pillar": "ai-strategy",
+      "status": "pending",
+      "angle": "Review prático do stack real que usa — ferramentas, custos, resultados. 70% das pequenas empresas usam IA regularmente, custo médio $100-500/mês.",
+      "keywords": ["ferramentas IA", "stack solopreneur", "IA para negócios", "automação barata", "AI tools 2026"],
+      "sources": [
+        "https://prometai.app/blog/solopreneur-tech-stack-2026",
+        "https://www.entrepreneur.com/growing-a-business/4-ai-tools-to-help-you-start-a-profitable-solo-business-in/502318"
+      ],
+      "createdAt": "2026-02-28",
+      "publishDate": null
+    }
+  ]
 }
