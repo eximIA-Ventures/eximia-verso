@@ -15,12 +15,16 @@ const translationSchema = z.object({
 
 export async function translateArticle(
   article: { title: string; excerpt: string; content: string },
-  targetLocale: "en" | "es"
+  targetLocale: "en" | "es",
+  apiKey?: string
 ): Promise<{ result: z.infer<typeof translationSchema>; model: string }> {
   const modelId = "gpt-4o-mini";
   const targetLanguage = LOCALE_NAMES[targetLocale];
+  const key = apiKey || process.env.OPENAI_API_KEY;
 
-  const openai = createOpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  if (!key) throw new Error("OpenAI API key not available");
+
+  const openai = createOpenAI({ apiKey: key });
 
   const { object } = await generateObject({
     model: openai(modelId),

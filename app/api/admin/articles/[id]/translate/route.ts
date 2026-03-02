@@ -10,16 +10,10 @@ export async function POST(
   const { id } = await params;
 
   // Pre-check: OPENAI_API_KEY
-  if (!process.env.OPENAI_API_KEY) {
-    const envKeys = Object.keys(process.env).filter(
-      (k) => k.includes("OPENAI") || k.includes("API_KEY") || k.includes("KEY")
-    );
+  const apiKey = process.env.OPENAI_API_KEY?.trim();
+  if (!apiKey) {
     return NextResponse.json(
-      {
-        error: "OPENAI_API_KEY not configured on server",
-        hint: "Set OPENAI_API_KEY as an environment variable in EasyPanel and redeploy.",
-        availableKeyVars: envKeys,
-      },
+      { error: "OPENAI_API_KEY not configured on server" },
       { status: 500 }
     );
   }
@@ -98,7 +92,8 @@ export async function POST(
         excerpt: article.excerpt,
         content: article.content,
       },
-      locale
+      locale,
+      apiKey
     );
 
     const translation = await upsertTranslation(id, locale, {
