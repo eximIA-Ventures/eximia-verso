@@ -1,5 +1,5 @@
 import { generateObject } from "ai";
-import { openai } from "@ai-sdk/openai";
+import { createOpenAI } from "@ai-sdk/openai";
 import { z } from "zod";
 
 const LOCALE_NAMES: Record<string, string> = {
@@ -17,11 +17,13 @@ export async function translateArticle(
   article: { title: string; excerpt: string; content: string },
   targetLocale: "en" | "es"
 ): Promise<{ result: z.infer<typeof translationSchema>; model: string }> {
-  const model = "gpt-4o-mini";
+  const modelId = "gpt-4o-mini";
   const targetLanguage = LOCALE_NAMES[targetLocale];
 
+  const openai = createOpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
   const { object } = await generateObject({
-    model: openai(model),
+    model: openai(modelId),
     schema: translationSchema,
     prompt: `Translate the following article from Brazilian Portuguese to ${targetLanguage}.
 
@@ -42,5 +44,5 @@ ARTICLE CONTENT:
 ${article.content}`,
   });
 
-  return { result: object, model };
+  return { result: object, model: modelId };
 }
