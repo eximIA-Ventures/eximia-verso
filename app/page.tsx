@@ -11,7 +11,7 @@ import { getServerLocale } from "@/lib/get-server-locale";
 import { getPillarName } from "@/lib/pillars-config";
 import { PILLARS } from "@/lib/pillars-config";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const locale = await getServerLocale();

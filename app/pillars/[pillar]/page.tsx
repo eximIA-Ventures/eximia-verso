@@ -9,7 +9,7 @@ import { getPillarById } from "@/lib/pillars-config";
 import { getServerLocale } from "@/lib/get-server-locale";
 import type { Metadata } from "next";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: Promise<{ pillar: string }>;

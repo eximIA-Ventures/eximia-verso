@@ -4,7 +4,7 @@ import { T } from "@/components/T";
 import { getServerLocale } from "@/lib/get-server-locale";
 import type { Metadata } from "next";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getServerLocale();

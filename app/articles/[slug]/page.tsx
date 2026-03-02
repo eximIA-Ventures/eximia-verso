@@ -5,7 +5,7 @@ import { ArticleLayout } from "@/components/ArticleLayout";
 import { getServerLocale } from "@/lib/get-server-locale";
 import type { Metadata } from "next";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
