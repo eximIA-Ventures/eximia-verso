@@ -47,6 +47,8 @@ const translations = {
     "article.share.instaCopied": "Link copiado! Cole no Stories",
     "article.share.copyLink": "Copiar link",
     "article.min": "min",
+    "article.toc": "Neste artigo",
+    "article.tocLabel": "Tabela de conteúdos",
     "article.translatedByAI": "Traduzido automaticamente por IA",
     "article.viewOriginal": "Ver original em português",
 
@@ -328,6 +330,8 @@ const translations = {
     "article.share.instaCopied": "Link copied! Paste in Stories",
     "article.share.copyLink": "Copy link",
     "article.min": "min",
+    "article.toc": "In this article",
+    "article.tocLabel": "Table of contents",
     "article.translatedByAI": "Automatically translated by AI",
     "article.viewOriginal": "View original in Portuguese",
 
@@ -588,6 +592,8 @@ const translations = {
     "article.share.instaCopied": "¡Link copiado! Pégalo en Stories",
     "article.share.copyLink": "Copiar link",
     "article.min": "min",
+    "article.toc": "En este artículo",
+    "article.tocLabel": "Tabla de contenidos",
     "article.translatedByAI": "Traducido automáticamente por IA",
     "article.viewOriginal": "Ver original en portugués",
 

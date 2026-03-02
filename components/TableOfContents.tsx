@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import type { TocItem } from "@/lib/mdx";
+import { useLocale } from "./LocaleProvider";
 
 export function TableOfContents({ items }: { items: TocItem[] }) {
+  const { t } = useLocale();
   const [activeId, setActiveId] = useState<string>("");
 
   useEffect(() => {
@@ -29,9 +31,9 @@ export function TableOfContents({ items }: { items: TocItem[] }) {
   if (items.length === 0) return null;
 
   return (
-    <nav aria-label="Tabela de conteudos">
+    <nav aria-label={t("article.tocLabel")}>
       <h4 className="mb-4 text-[10px] font-mono uppercase tracking-[0.2em] text-muted">
-        Neste artigo
+        {t("article.toc")}
       </h4>
       <ul className="space-y-1.5 border-l border-border/30">
         {items.map((item) => (
