@@ -9,6 +9,14 @@ export async function POST(
 ) {
   const { id } = await params;
 
+  // Pre-check: OPENAI_API_KEY
+  if (!process.env.OPENAI_API_KEY) {
+    return NextResponse.json(
+      { error: "OPENAI_API_KEY not configured on server" },
+      { status: 500 }
+    );
+  }
+
   // Auth check
   const supabase = await createClient();
   const {
@@ -26,6 +34,22 @@ export async function POST(
     return NextResponse.json(
       { error: "Invalid locale. Must be 'en' or 'es'" },
       { status: 400 }
+    );
+  }
+
+  // Check if article_translations table exists by attempting a query
+  const { error: tableCheck } = await supabase
+    .from("article_translations")
+    .select("id")
+    .limit(1);
+
+  if (tableCheck) {
+    return NextResponse.json(
+      {
+        error: "Table 'article_translations' not found. Run the migration SQL in Supabase.",
+        detail: tableCheck.message,
+      },
+      { status: 500 }
     );
   }
 
@@ -54,7 +78,10 @@ export async function POST(
     .single();
 
   if (articleError || !article) {
-    return NextResponse.json({ error: "Article not found" }, { status: 404 });
+    return NextResponse.json(
+      { error: "Article not found", detail: articleError?.message },
+      { status: 404 }
+    );
   }
 
   try {
@@ -78,7 +105,7 @@ export async function POST(
 
     if (!translation) {
       return NextResponse.json(
-        { error: "Failed to save translation" },
+        { error: "Failed to save translation to database. Check article_translations table and RLS policies." },
         { status: 500 }
       );
     }
