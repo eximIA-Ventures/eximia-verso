@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/admin/Toast";
 import { Search, Download, Trash2, Users } from "lucide-react";
+import { useLocale } from "@/components/LocaleProvider";
 
 interface Subscriber {
   id: string;
@@ -12,6 +13,7 @@ interface Subscriber {
 }
 
 export default function SubscribersPage() {
+  const { t } = useLocale();
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -25,7 +27,7 @@ export default function SubscribersPage() {
       .order("subscribed_at", { ascending: false });
 
     if (error) {
-      toast.error("Erro ao carregar subscribers");
+      toast.error(t("admin.subscribers.loadError"));
       setLoading(false);
       return;
     }
@@ -52,12 +54,12 @@ export default function SubscribersPage() {
       .eq("id", id);
 
     if (error) {
-      toast.error("Erro ao remover subscriber");
+      toast.error(t("admin.subscribers.removeError"));
       return;
     }
 
     setSubscribers((prev) => prev.filter((s) => s.id !== id));
-    toast.success("Subscriber removido");
+    toast.success(t("admin.subscribers.removed"));
   }
 
   function exportCSV() {
@@ -73,7 +75,7 @@ export default function SubscribersPage() {
     link.download = `subscribers-${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
     URL.revokeObjectURL(url);
-    toast.success(`${subscribers.length} subscribers exportados`);
+    toast.success(`${subscribers.length} ${t("admin.subscribers.exported")}`);
   }
 
   return (
@@ -81,10 +83,10 @@ export default function SubscribersPage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold tracking-tight">
-            Newsletter Subscribers
+            {t("admin.subscribers")}
           </h1>
           <p className="text-sm text-muted">
-            {subscribers.length} subscriber{subscribers.length !== 1 ? "s" : ""}
+            {subscribers.length} {t("admin.subscribers.count")}
           </p>
         </div>
         <button
@@ -93,7 +95,7 @@ export default function SubscribersPage() {
           className="flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm text-primary transition-colors hover:bg-elevated disabled:opacity-50"
         >
           <Download size={14} />
-          Export CSV
+          {t("admin.subscribers.export")}
         </button>
       </div>
 
@@ -104,7 +106,7 @@ export default function SubscribersPage() {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Buscar por email..."
+          placeholder={t("admin.subscribers.search")}
           className="w-full rounded-lg border border-border bg-surface py-2 pl-8 pr-3 text-sm text-primary outline-none transition-colors focus:border-accent"
         />
       </div>
@@ -113,24 +115,24 @@ export default function SubscribersPage() {
       <div className="rounded-lg border border-border bg-surface">
         {loading ? (
           <div className="px-4 py-16 text-center text-sm text-muted">
-            Carregando...
+            {t("admin.subscribers.loading")}
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center gap-2 px-4 py-16">
             <Users size={24} className="text-muted" />
             <p className="text-sm text-muted">
               {subscribers.length === 0
-                ? "Nenhum subscriber ainda."
-                : "Nenhum subscriber encontrado."}
+                ? t("admin.subscribers.empty")
+                : t("admin.subscribers.noResults")}
             </p>
           </div>
         ) : (
           <table className="w-full">
             <thead>
               <tr className="border-b border-border text-left text-xs text-muted">
-                <th className="px-4 py-3 font-medium">Email</th>
+                <th className="px-4 py-3 font-medium">{t("admin.subscribers.colEmail")}</th>
                 <th className="hidden px-4 py-3 font-medium sm:table-cell">
-                  Inscrito em
+                  {t("admin.subscribers.colDate")}
                 </th>
                 <th className="px-4 py-3 font-medium w-16"></th>
               </tr>
@@ -153,7 +155,7 @@ export default function SubscribersPage() {
                     <button
                       onClick={() => handleDelete(s.id, s.email)}
                       className="rounded p-1 text-muted transition-colors hover:text-red-400"
-                      title="Remover"
+                      title={t("admin.subscribers.remove")}
                     >
                       <Trash2 size={14} />
                     </button>

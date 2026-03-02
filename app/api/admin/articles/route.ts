@@ -7,7 +7,7 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from("articles")
-    .select("id, title, slug, pillar, status, featured, updated_at")
+    .select("id, title, slug, pillar, status, featured, updated_at, article_translations(locale, status)")
     .order("updated_at", { ascending: false });
 
   if (error) {

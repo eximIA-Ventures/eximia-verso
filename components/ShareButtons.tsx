@@ -2,6 +2,7 @@
 
 import { Link2, Linkedin, Twitter } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useLocale } from "@/components/LocaleProvider";
 
 interface ShareButtonsProps {
   title: string;
@@ -9,6 +10,7 @@ interface ShareButtonsProps {
 }
 
 export function ShareButtons({ title, slug }: ShareButtonsProps) {
+  const { t } = useLocale();
   const [copied, setCopied] = useState(false);
   const [baseUrl, setBaseUrl] = useState("");
 
@@ -30,14 +32,14 @@ export function ShareButtons({ title, slug }: ShareButtonsProps) {
   return (
     <div className="flex items-center gap-1">
       <span className="mr-2 text-[10px] font-mono uppercase tracking-[0.2em] text-muted">
-        Propagar
+        {t("share.label")}
       </span>
       <a
         href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`}
         target="_blank"
         rel="noopener noreferrer"
         className="flex h-8 w-8 items-center justify-center rounded-md text-muted transition-colors hover:bg-elevated hover:text-primary"
-        aria-label="Compartilhar no LinkedIn"
+        aria-label={t("share.linkedin")}
       >
         <Linkedin size={15} />
       </a>
@@ -46,19 +48,19 @@ export function ShareButtons({ title, slug }: ShareButtonsProps) {
         target="_blank"
         rel="noopener noreferrer"
         className="flex h-8 w-8 items-center justify-center rounded-md text-muted transition-colors hover:bg-elevated hover:text-primary"
-        aria-label="Compartilhar no X"
+        aria-label={t("share.x")}
       >
         <Twitter size={15} />
       </a>
       <button
         onClick={handleCopy}
         className="flex h-8 w-8 items-center justify-center rounded-md text-muted transition-colors hover:bg-elevated hover:text-primary"
-        aria-label="Copiar link"
+        aria-label={t("share.copy")}
       >
         <Link2 size={15} />
       </button>
       {copied && (
-        <span className="text-xs text-accent animate-in fade-in">Link copiado</span>
+        <span className="text-xs text-accent animate-in fade-in">{t("share.copied")}</span>
       )}
     </div>
   );

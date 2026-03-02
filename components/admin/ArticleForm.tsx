@@ -17,6 +17,9 @@ import {
   Star,
   X,
 } from "lucide-react";
+import { TranslationPanel } from "./TranslationPanel";
+import { useLocale } from "@/components/LocaleProvider";
+import type { TranslationKey } from "@/lib/i18n";
 
 interface AuthorOption {
   id: string;
@@ -70,13 +73,14 @@ function toLocalDatetime(iso: string): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-const STATUS_CONFIG = {
-  draft: { label: "Rascunho", color: "bg-amber-400/10 text-amber-400 border-amber-400/20" },
-  published: { label: "Publicado", color: "bg-green-400/10 text-green-400 border-green-400/20" },
-  archived: { label: "Arquivado", color: "bg-muted/10 text-muted border-border" },
-} as const;
+const STATUS_CONFIG: Record<string, { labelKey: TranslationKey; color: string }> = {
+  draft: { labelKey: "admin.status.draft", color: "bg-amber-400/10 text-amber-400 border-amber-400/20" },
+  published: { labelKey: "admin.status.published", color: "bg-green-400/10 text-green-400 border-green-400/20" },
+  archived: { labelKey: "admin.status.archived", color: "bg-muted/10 text-muted border-border" },
+};
 
 export function ArticleForm({ initialData, mode }: Props) {
+  const { t } = useLocale();
   const router = useRouter();
   const toast = useToast();
 
@@ -231,12 +235,12 @@ export function ArticleForm({ initialData, mode }: Props) {
 
       if (!res.ok) {
         const err = await res.json();
-        toast.error(`Erro ao salvar: ${err.error || "Erro desconhecido"}`);
+        toast.error(`${t("admin.toast.saveError")}: ${err.error || t("admin.toast.unknownError")}`);
         setSaving(false);
         return;
       }
     } catch (err) {
-      toast.error(`Erro ao salvar: ${err}`);
+      toast.error(`${t("admin.toast.saveError")}: ${err}`);
       setSaving(false);
       return;
     }
@@ -253,12 +257,12 @@ export function ArticleForm({ initialData, mode }: Props) {
     }
 
     const actionLabel = statusOverride === "published"
-      ? "Artigo publicado"
+      ? t("admin.toast.published")
       : statusOverride === "draft"
-        ? "Artigo despublicado"
+        ? t("admin.toast.unpublished")
         : statusOverride === "archived"
-          ? "Artigo arquivado"
-          : "Artigo salvo";
+          ? t("admin.toast.archived")
+          : t("admin.toast.saved");
 
     toast.success(actionLabel);
     setSaving(false);
@@ -272,7 +276,7 @@ export function ArticleForm({ initialData, mode }: Props) {
     const res = await fetch(`/api/admin/articles/${form.id}`, { method: "DELETE" });
     if (!res.ok) {
       const err = await res.json();
-      toast.error(`Erro ao deletar: ${err.error || "Erro desconhecido"}`);
+      toast.error(`${t("admin.toast.deleteError")}: ${err.error || t("admin.toast.unknownError")}`);
       return;
     }
 
@@ -284,7 +288,7 @@ export function ArticleForm({ initialData, mode }: Props) {
       });
     } catch {}
 
-    toast.success("Artigo deletado");
+    toast.success(t("admin.toast.deleted"));
     router.push("/admin/articles");
     router.refresh();
   }
@@ -304,12 +308,12 @@ export function ArticleForm({ initialData, mode }: Props) {
 
     if (!res.ok) {
       const err = await res.json();
-      toast.error(`Upload falhou: ${err.error || "Erro desconhecido"}`);
+      toast.error(`${t("admin.toast.uploadError")}: ${err.error || t("admin.toast.unknownError")}`);
       return null;
     }
 
     const { url } = await res.json();
-    toast.success("Imagem enviada");
+    toast.success(t("admin.toast.imageUploaded"));
     return url;
   }
 
@@ -366,13 +370,13 @@ export function ArticleForm({ initialData, mode }: Props) {
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h1 className="font-display text-2xl font-bold tracking-tight">
-            {mode === "create" ? "Novo artigo" : "Editar artigo"}
+            {mode === "create" ? t("admin.newArticle") : t("admin.editArticle")}
           </h1>
           {mode === "edit" && (
             <span
               className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${statusCfg.color}`}
             >
-              {statusCfg.label}
+              {t(statusCfg.labelKey)}
             </span>
           )}
         </div>
@@ -383,7 +387,7 @@ export function ArticleForm({ initialData, mode }: Props) {
               className="flex items-center gap-1.5 rounded-md border border-red-400/30 px-3 py-2 text-sm text-red-400 transition-colors hover:bg-red-400/10"
             >
               <Trash2 size={14} />
-              Deletar
+              {t("admin.delete")}
             </button>
           )}
         </div>
@@ -398,7 +402,7 @@ export function ArticleForm({ initialData, mode }: Props) {
           className="flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm text-primary transition-colors hover:bg-elevated disabled:opacity-50"
         >
           <Save size={14} />
-          {saving ? "Salvando..." : "Salvar"}
+          {saving ? t("admin.saving") : t("admin.save")}
         </button>
 
         {/* Publicar (quando draft ou archived) */}
@@ -409,7 +413,7 @@ export function ArticleForm({ initialData, mode }: Props) {
             className="flex items-center gap-1.5 rounded-md bg-green-500/90 px-3 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             <Send size={14} />
-            Publicar
+            {t("admin.publish")}
           </button>
         )}
 
@@ -421,7 +425,7 @@ export function ArticleForm({ initialData, mode }: Props) {
             className="flex items-center gap-1.5 rounded-md border border-amber-400/30 px-3 py-1.5 text-sm text-amber-400 transition-colors hover:bg-amber-400/10 disabled:opacity-50"
           >
             <EyeOff size={14} />
-            Despublicar
+            {t("admin.unpublish")}
           </button>
         )}
 
@@ -433,7 +437,7 @@ export function ArticleForm({ initialData, mode }: Props) {
             className="flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm text-muted transition-colors hover:bg-elevated disabled:opacity-50"
           >
             <Archive size={14} />
-            Arquivar
+            {t("admin.archive")}
           </button>
         )}
 
@@ -445,7 +449,7 @@ export function ArticleForm({ initialData, mode }: Props) {
             className="flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm text-muted transition-colors hover:bg-elevated disabled:opacity-50"
           >
             <RotateCcw size={14} />
-            Restaurar rascunho
+            {t("admin.restoreDraft")}
           </button>
         )}
       </div>
@@ -453,12 +457,12 @@ export function ArticleForm({ initialData, mode }: Props) {
       <div className="space-y-6">
         {/* Title */}
         <div>
-          <label className="mb-1 block text-xs text-muted">Titulo</label>
+          <label className="mb-1 block text-xs text-muted">{t("admin.form.title")}</label>
           <input
             type="text"
             value={form.title}
             onChange={(e) => updateField("title", e.target.value)}
-            placeholder="Titulo do artigo"
+            placeholder={t("admin.form.titlePlaceholder")}
             className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
           />
         </div>
@@ -466,7 +470,7 @@ export function ArticleForm({ initialData, mode }: Props) {
         {/* Slug */}
         <div>
           <div className="mb-1 flex items-center gap-2">
-            <label className="text-xs text-muted">Slug</label>
+            <label className="text-xs text-muted">{t("admin.form.slug")}</label>
             {mode === "create" && (
               <label className="flex items-center gap-1 text-[10px] text-muted">
                 <input
@@ -475,7 +479,7 @@ export function ArticleForm({ initialData, mode }: Props) {
                   onChange={(e) => setAutoSlug(e.target.checked)}
                   className="accent-accent"
                 />
-                Auto
+                {t("admin.form.slugAuto")}
               </label>
             )}
           </div>
@@ -486,18 +490,18 @@ export function ArticleForm({ initialData, mode }: Props) {
               setAutoSlug(false);
               updateField("slug", e.target.value);
             }}
-            placeholder="url-do-artigo"
+            placeholder={t("admin.form.slugPlaceholder")}
             className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 font-mono text-sm text-primary outline-none transition-colors focus:border-accent"
           />
         </div>
 
         {/* Excerpt */}
         <div>
-          <label className="mb-1 block text-xs text-muted">Resumo</label>
+          <label className="mb-1 block text-xs text-muted">{t("admin.form.excerpt")}</label>
           <textarea
             value={form.excerpt}
             onChange={(e) => updateField("excerpt", e.target.value)}
-            placeholder="Resumo do artigo (2-3 frases)"
+            placeholder={t("admin.form.excerptPlaceholder")}
             rows={3}
             className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
           />
@@ -505,7 +509,7 @@ export function ArticleForm({ initialData, mode }: Props) {
 
         {/* Pillar */}
         <div>
-          <label className="mb-1 block text-xs text-muted">Pilar</label>
+          <label className="mb-1 block text-xs text-muted">{t("admin.form.pillar")}</label>
           <select
             value={form.pillar}
             onChange={(e) => updateField("pillar", e.target.value)}
@@ -521,7 +525,7 @@ export function ArticleForm({ initialData, mode }: Props) {
 
         {/* Authors multi-select */}
         <div>
-          <label className="mb-1 block text-xs text-muted">Autores</label>
+          <label className="mb-1 block text-xs text-muted">{t("admin.form.authors")}</label>
           {/* Selected authors chips */}
           <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 min-h-[42px]">
             {form.author_ids.map((id, idx) => {
@@ -574,7 +578,7 @@ export function ArticleForm({ initialData, mode }: Props) {
                 onClick={() => setAuthorDropdownOpen(!authorDropdownOpen)}
                 className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted transition-colors hover:bg-elevated hover:text-primary"
               >
-                + Adicionar autor
+                {t("admin.form.addAuthor")}
               </button>
               {authorDropdownOpen && (
                 <div className="absolute left-0 top-full z-20 mt-1 w-56 rounded-lg border border-border bg-bg py-1 shadow-lg">
@@ -606,7 +610,7 @@ export function ArticleForm({ initialData, mode }: Props) {
                       </button>
                     ))}
                   {allAuthors.filter((a) => !form.author_ids.includes(a.id)).length === 0 && (
-                    <p className="px-3 py-2 text-xs text-muted">Todos os autores já selecionados</p>
+                    <p className="px-3 py-2 text-xs text-muted">{t("admin.form.allAuthorsSelected")}</p>
                   )}
                 </div>
               )}
@@ -619,7 +623,7 @@ export function ArticleForm({ initialData, mode }: Props) {
         {/* Publish date + Featured row */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-xs text-muted">Data de publicacao</label>
+            <label className="mb-1 block text-xs text-muted">{t("admin.form.publishDate")}</label>
             <input
               type="datetime-local"
               value={toLocalDatetime(form.publish_date)}
@@ -632,7 +636,7 @@ export function ArticleForm({ initialData, mode }: Props) {
               className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
             />
             <p className="mt-1 text-[10px] text-muted">
-              Vazio = auto-fill ao publicar
+              {t("admin.form.publishDateHint")}
             </p>
           </div>
           <div className="flex items-center">
@@ -644,7 +648,7 @@ export function ArticleForm({ initialData, mode }: Props) {
                 className="accent-accent"
               />
               <Star size={14} className={form.featured ? "text-amber-400" : "text-muted"} />
-              Marcar como destaque
+              {t("admin.form.featured")}
             </label>
           </div>
         </div>
@@ -652,30 +656,30 @@ export function ArticleForm({ initialData, mode }: Props) {
         {/* Tags */}
         <div>
           <label className="mb-1 block text-xs text-muted">
-            Tags (separadas por virgula)
+            {t("admin.form.tags")}
           </label>
           <input
             type="text"
             value={tagsInput}
             onChange={(e) => setTagsInput(e.target.value)}
-            placeholder="ia, estratégia, negócios"
+            placeholder={t("admin.form.tagsPlaceholder")}
             className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
           />
         </div>
 
         {/* Hero image */}
         <div>
-          <label className="mb-1 block text-xs text-muted">Imagem de capa</label>
+          <label className="mb-1 block text-xs text-muted">{t("admin.form.heroImage")}</label>
           <div className="flex items-center gap-3">
             <input
               type="text"
               value={form.hero_image}
               onChange={(e) => updateField("hero_image", e.target.value)}
-              placeholder="URL da imagem ou faca upload"
+              placeholder={t("admin.form.heroImagePlaceholder")}
               className="flex-1 rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
             />
             <label className="cursor-pointer rounded-md border border-border px-3 py-2.5 text-sm text-muted transition-colors hover:bg-elevated">
-              Upload
+              {t("admin.form.upload")}
               <input
                 type="file"
                 accept="image/*"
@@ -699,10 +703,10 @@ export function ArticleForm({ initialData, mode }: Props) {
         {/* Content (MDX) with preview toggle */}
         <div>
           <div className="mb-1 flex items-center justify-between">
-            <label className="text-xs text-muted">Conteudo (MDX)</label>
+            <label className="text-xs text-muted">{t("admin.form.content")}</label>
             <div className="flex items-center gap-3">
               <span className="text-[10px] text-muted">
-                ~{form.reading_time} min leitura
+                ~{form.reading_time} {t("admin.form.readingTime")}
               </span>
               <button
                 type="button"
@@ -714,7 +718,7 @@ export function ArticleForm({ initialData, mode }: Props) {
                 }`}
               >
                 <Eye size={12} />
-                Preview
+                {t("admin.form.preview")}
               </button>
             </div>
           </div>
@@ -736,7 +740,7 @@ export function ArticleForm({ initialData, mode }: Props) {
                   ) : (
                     <ImagePlus size={14} />
                   )}
-                  {insertingImage ? "Enviando..." : "Inserir imagem"}
+                  {insertingImage ? t("admin.form.uploading") : t("admin.form.insertImage")}
                   <input
                     type="file"
                     accept="image/*"
@@ -750,7 +754,7 @@ export function ArticleForm({ initialData, mode }: Props) {
                 ref={contentRef}
                 value={form.content}
                 onChange={(e) => updateField("content", e.target.value)}
-                placeholder="Escreva em Markdown/MDX..."
+                placeholder={t("admin.form.contentPlaceholder")}
                 rows={20}
                 className="w-full rounded-b-lg rounded-t-none border border-border bg-surface px-3 py-2.5 font-mono text-sm text-primary outline-none transition-colors focus:border-accent"
               />
@@ -762,7 +766,7 @@ export function ArticleForm({ initialData, mode }: Props) {
                 {previewLoading && (
                   <div className="flex items-center gap-2 text-xs text-muted">
                     <Loader2 size={14} className="animate-spin" />
-                    Compilando...
+                    {t("admin.form.compiling")}
                   </div>
                 )}
                 {!previewLoading && previewHtml && (
@@ -773,7 +777,7 @@ export function ArticleForm({ initialData, mode }: Props) {
                 )}
                 {!previewLoading && !previewHtml && (
                   <p className="text-xs text-muted">
-                    Comece a escrever para ver o preview.
+                    {t("admin.form.previewEmpty")}
                   </p>
                 )}
               </div>
@@ -784,13 +788,13 @@ export function ArticleForm({ initialData, mode }: Props) {
         {/* Sources */}
         <div>
           <div className="mb-2 flex items-center justify-between">
-            <label className="text-xs text-muted">Fontes</label>
+            <label className="text-xs text-muted">{t("admin.form.sources")}</label>
             <button
               type="button"
               onClick={addSource}
               className="text-xs text-accent hover:underline"
             >
-              + Adicionar fonte
+              {t("admin.form.addSource")}
             </button>
           </div>
           {form.sources.map((source, idx) => (
@@ -799,7 +803,7 @@ export function ArticleForm({ initialData, mode }: Props) {
                 type="text"
                 value={source.title}
                 onChange={(e) => updateSource(idx, "title", e.target.value)}
-                placeholder="Titulo da fonte"
+                placeholder={t("admin.form.sourceTitle")}
                 className="flex-1 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-primary outline-none transition-colors focus:border-accent"
               />
               <input
@@ -820,6 +824,11 @@ export function ArticleForm({ initialData, mode }: Props) {
           ))}
         </div>
       </div>
+
+      {/* Translations — edit mode only */}
+      {mode === "edit" && form.id && (
+        <TranslationPanel articleId={form.id} />
+      )}
     </div>
   );
 }

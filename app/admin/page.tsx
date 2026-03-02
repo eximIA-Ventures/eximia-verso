@@ -2,6 +2,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { FileText, Eye, FilePen, Archive, Star, Users } from "lucide-react";
 import Link from "next/link";
 import type { ArticleRow } from "@/lib/types";
+import { t } from "@/lib/i18n";
+import { getServerLocale } from "@/lib/get-server-locale";
+import type { TranslationKey } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -53,35 +56,36 @@ async function getStats() {
   };
 }
 
-const STAT_CARDS = [
-  { key: "total", label: "Total", icon: FileText, color: "text-primary" },
-  { key: "published", label: "Publicados", icon: Eye, color: "text-green-400" },
-  { key: "drafts", label: "Rascunhos", icon: FilePen, color: "text-amber-400" },
-  { key: "archived", label: "Arquivados", icon: Archive, color: "text-muted" },
-  { key: "featured", label: "Destaques", icon: Star, color: "text-amber-400" },
-  { key: "subscribers", label: "Subscribers", icon: Users, color: "text-accent" },
-] as const;
+const STAT_CARDS: { key: "total" | "published" | "drafts" | "archived" | "featured" | "subscribers"; labelKey: TranslationKey; icon: typeof FileText; color: string }[] = [
+  { key: "total", labelKey: "admin.articles", icon: FileText, color: "text-primary" },
+  { key: "published", labelKey: "admin.dashboard.published", icon: Eye, color: "text-green-400" },
+  { key: "drafts", labelKey: "admin.dashboard.drafts", icon: FilePen, color: "text-amber-400" },
+  { key: "archived", labelKey: "admin.dashboard.archived", icon: Archive, color: "text-muted" },
+  { key: "featured", labelKey: "admin.form.featured", icon: Star, color: "text-amber-400" },
+  { key: "subscribers", labelKey: "admin.dashboard.subscribers", icon: Users, color: "text-accent" },
+];
 
 export default async function AdminDashboard() {
+  const locale = await getServerLocale();
   const stats = await getStats();
 
   return (
     <div className="mx-auto max-w-4xl">
       <div className="mb-8">
-        <h1 className="font-display text-2xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-sm text-muted">Verso by eximIA — Painel de conteudo</p>
+        <h1 className="font-display text-2xl font-bold tracking-tight">{t(locale, "admin.dashboard")}</h1>
+        <p className="text-sm text-muted">{t(locale, "admin.dashboard.subtitle")}</p>
       </div>
 
       {/* Stats grid */}
       <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-3">
-        {STAT_CARDS.map(({ key, label, icon: Icon, color }) => (
+        {STAT_CARDS.map(({ key, labelKey, icon: Icon, color }) => (
           <div
             key={key}
             className="rounded-lg border border-border bg-surface p-4"
           >
             <div className="mb-2 flex items-center gap-2">
               <Icon size={16} className={color} />
-              <span className="text-xs text-muted">{label}</span>
+              <span className="text-xs text-muted">{t(locale, labelKey)}</span>
             </div>
             <p className="text-2xl font-bold">{stats[key]}</p>
           </div>
@@ -91,18 +95,18 @@ export default async function AdminDashboard() {
       {/* Recent articles */}
       <div className="rounded-lg border border-border bg-surface">
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <h2 className="text-sm font-medium">Artigos recentes</h2>
+          <h2 className="text-sm font-medium">{t(locale, "admin.dashboard.recentArticles")}</h2>
           <Link
             href="/admin/articles/new"
             className="rounded-md bg-accent px-3 py-1.5 text-xs font-medium text-bg transition-opacity hover:opacity-90"
           >
-            Novo artigo
+            {t(locale, "admin.dashboard.newArticle")}
           </Link>
         </div>
 
         {stats.recent.length === 0 ? (
           <div className="px-4 py-12 text-center">
-            <p className="text-sm text-muted">Nenhum artigo ainda.</p>
+            <p className="text-sm text-muted">{t(locale, "admin.dashboard.noArticles")}</p>
           </div>
         ) : (
           <div className="divide-y divide-border">

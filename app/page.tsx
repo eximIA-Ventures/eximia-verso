@@ -7,13 +7,16 @@ import { T } from "@/components/T";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { WhyVerso } from "@/components/WhyVerso";
 import { MethodologyStrip } from "@/components/MethodologyStrip";
+import { getServerLocale } from "@/lib/get-server-locale";
+import { getPillarName } from "@/lib/pillars-config";
 import { PILLARS } from "@/lib/pillars-config";
 
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const articles = await getAllArticles();
-  const featuredArticle = await getFeaturedArticle();
+  const locale = await getServerLocale();
+  const articles = await getAllArticles(locale);
+  const featuredArticle = await getFeaturedArticle(locale);
   const featured = featuredArticle ?? articles[0];
   const recent = articles.filter((a) => a.slug !== featured?.slug).slice(0, 6);
 
@@ -44,7 +47,7 @@ export default async function HomePage() {
                 className="flex items-center gap-1.5 rounded-full border border-border/50 px-3.5 py-1.5 text-xs text-muted transition-all hover:border-accent/30 hover:text-accent hover:bg-accent/5"
               >
                 <PillarIcon icon={pillar.icon} size={12} />
-                {pillar.name}
+                {getPillarName(pillar.id, locale)}
               </Link>
             ))}
           </div>

@@ -3,6 +3,7 @@
 import { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient, nukeSupabaseSession } from "@/lib/supabase/client";
+import { useLocale } from "@/components/LocaleProvider";
 
 export default function LoginPage() {
   return (
@@ -13,6 +14,7 @@ export default function LoginPage() {
 }
 
 function LoginForm() {
+  const { t } = useLocale();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/admin";
 
@@ -46,7 +48,7 @@ function LoginForm() {
     });
 
     if (authError) {
-      setError("Credenciais inválidas.");
+      setError(t("admin.login.error"));
       setLoading(false);
       return;
     }
@@ -63,14 +65,14 @@ function LoginForm() {
             Verso Admin
           </p>
           <h1 className="font-display text-2xl font-bold tracking-tight">
-            Acessar painel
+            {t("admin.login.title")}
           </h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="email" className="mb-1 block text-xs text-muted">
-              Email
+              {t("admin.login.email")}
             </label>
             <input
               id="email"
@@ -84,7 +86,7 @@ function LoginForm() {
 
           <div>
             <label htmlFor="password" className="mb-1 block text-xs text-muted">
-              Senha
+              {t("admin.login.password")}
             </label>
             <input
               id="password"
@@ -105,7 +107,7 @@ function LoginForm() {
             disabled={loading}
             className="w-full rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-bg transition-opacity hover:opacity-90 disabled:opacity-50"
           >
-            {loading ? "Entrando..." : "Entrar"}
+            {loading ? t("admin.login.submitting") : t("admin.login.submit")}
           </button>
         </form>
       </div>

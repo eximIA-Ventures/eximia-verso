@@ -46,6 +46,7 @@ export interface Article {
   status: "draft" | "published" | "archived";
   sources?: { title: string; url: string }[];
   content: string;
+  isTranslated?: boolean;
 }
 
 export interface ArticleMeta {
@@ -60,6 +61,7 @@ export interface ArticleMeta {
   heroImage?: string;
   readingTime: number;
   status: "draft" | "published" | "archived";
+  isTranslated?: boolean;
 }
 
 // DB row — mapeia colunas snake_case do Supabase
@@ -115,6 +117,50 @@ export function rowToMeta(row: ArticleRow, authors: Author[] = []): ArticleMeta 
     heroImage: row.hero_image ?? undefined,
     readingTime: row.reading_time,
     status: row.status,
+  };
+}
+
+// Translation types
+export interface ArticleTranslationRow {
+  id: string;
+  article_id: string;
+  locale: "en" | "es";
+  title: string;
+  excerpt: string;
+  content: string;
+  status: "draft" | "published" | "needs_review";
+  translated_at: string;
+  translated_by: string;
+  model_used: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ArticleTranslation {
+  id: string;
+  articleId: string;
+  locale: "en" | "es";
+  title: string;
+  excerpt: string;
+  content: string;
+  status: "draft" | "published" | "needs_review";
+  translatedAt: string;
+  translatedBy: string;
+  modelUsed: string | null;
+}
+
+export function rowToTranslation(row: ArticleTranslationRow): ArticleTranslation {
+  return {
+    id: row.id,
+    articleId: row.article_id,
+    locale: row.locale,
+    title: row.title,
+    excerpt: row.excerpt,
+    content: row.content,
+    status: row.status,
+    translatedAt: row.translated_at,
+    translatedBy: row.translated_by,
+    modelUsed: row.model_used,
   };
 }
 

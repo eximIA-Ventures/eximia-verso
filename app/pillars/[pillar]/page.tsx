@@ -1,11 +1,12 @@
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { getArticlesByPillar, getPillars } from "@/lib/articles";
+import { getArticlesByPillar } from "@/lib/articles";
 import { ArticleCard } from "@/components/ArticleCard";
 import { PillarIcon } from "@/components/PillarIcon";
 import { T } from "@/components/T";
-import type { Pillar } from "@/lib/types";
+import { getPillarById } from "@/lib/pillars-config";
+import { getServerLocale } from "@/lib/get-server-locale";
 import type { Metadata } from "next";
 
 export const revalidate = 60;
@@ -16,8 +17,8 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { pillar: pillarId } = await params;
-  const pillars: Pillar[] = getPillars();
-  const pillar = pillars.find((p) => p.id === pillarId);
+  const locale = await getServerLocale();
+  const pillar = getPillarById(pillarId, locale);
   if (!pillar) return {};
   return {
     title: pillar.name,
@@ -27,11 +28,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function PillarPage({ params }: PageProps) {
   const { pillar: pillarId } = await params;
-  const pillars: Pillar[] = getPillars();
-  const pillar = pillars.find((p) => p.id === pillarId);
+  const locale = await getServerLocale();
+  const pillar = getPillarById(pillarId, locale);
   if (!pillar) notFound();
 
-  const articles = await getArticlesByPillar(pillarId);
+  const articles = await getArticlesByPillar(pillarId, locale);
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-16">

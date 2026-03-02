@@ -16,8 +16,17 @@ const LocaleContext = createContext<LocaleContextValue>({
   t: (key) => key,
 });
 
-export function LocaleProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("pt");
+interface LocaleProviderProps {
+  children: React.ReactNode;
+  initialLocale?: Locale;
+}
+
+function setCookie(name: string, value: string) {
+  document.cookie = `${name}=${value};path=/;max-age=${365 * 24 * 60 * 60};samesite=lax`;
+}
+
+export function LocaleProvider({ children, initialLocale = "pt" }: LocaleProviderProps) {
+  const [locale, setLocaleState] = useState<Locale>(initialLocale);
 
   useEffect(() => {
     const saved = localStorage.getItem("verso-locale") as Locale | null;
@@ -29,8 +38,16 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const setLocale = useCallback((newLocale: Locale) => {
     setLocaleState(newLocale);
     localStorage.setItem("verso-locale", newLocale);
+    setCookie("verso-locale", newLocale);
     document.documentElement.lang = newLocale === "pt" ? "pt-BR" : newLocale;
+    // Reload so server components re-render with new locale
+    window.location.reload();
   }, []);
+
+  // Sync cookie on mount (in case localStorage has value but cookie doesn't)
+  useEffect(() => {
+    setCookie("verso-locale", locale);
+  }, [locale]);
 
   const t = useCallback(
     (key: TranslationKey) => translate(locale, key),

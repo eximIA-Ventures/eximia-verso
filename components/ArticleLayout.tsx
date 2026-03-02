@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Clock, Calendar } from "lucide-react";
+import { Clock, Calendar, Languages } from "lucide-react";
 import { PillarBadge } from "./PillarBadge";
 import { TableOfContents } from "./TableOfContents";
 import { ShareButton } from "./ShareButton";
@@ -9,20 +9,44 @@ import { T } from "./T";
 import { AuthorCard } from "./AuthorCard";
 import type { Article } from "@/lib/types";
 import type { TocItem } from "@/lib/mdx";
+import type { Locale } from "@/lib/i18n";
 
 interface ArticleLayoutProps {
   article: Article;
-  toc: TocItem[];
+  toc?: TocItem[];
+  locale?: Locale;
   children: React.ReactNode;
 }
 
-export function ArticleLayout({ article, toc, children }: ArticleLayoutProps) {
+export function ArticleLayout({ article, toc = [], locale = "pt", children }: ArticleLayoutProps) {
 
   return (
     <>
       <ReadingProgress />
 
       <article className="mx-auto max-w-5xl px-6">
+        {/* Translation indicator */}
+        {article.isTranslated && locale !== "pt" && (
+          <div className="mx-auto max-w-3xl pt-8">
+            <div className="flex items-center gap-2 rounded-lg border border-accent/20 bg-accent/5 px-4 py-2.5 text-xs text-muted">
+              <Languages size={14} className="text-accent" />
+              <span><T k="article.translatedByAI" /></span>
+              <span className="mx-1 text-border">|</span>
+              <a
+                href={`?locale=pt`}
+                className="text-accent hover:underline"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.cookie = "verso-locale=pt;path=/;max-age=31536000;samesite=lax";
+                  window.location.reload();
+                }}
+              >
+                <T k="article.viewOriginal" />
+              </a>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <header className="mx-auto max-w-3xl pt-12 pb-8">
           <div className="mb-5 flex flex-wrap items-center gap-3">

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Plus, Pencil, Trash2, Loader2, X, Upload, Linkedin, Twitter, Globe, Mail } from "lucide-react";
 import { useToast } from "@/components/admin/Toast";
+import { useLocale } from "@/components/LocaleProvider";
 
 interface AuthorData {
   id?: string;
@@ -24,6 +25,7 @@ function slugify(text: string): string {
 }
 
 export default function AuthorsPage() {
+  const { t } = useLocale();
   const toast = useToast();
   const [authors, setAuthors] = useState<AuthorData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,12 +82,12 @@ export default function AuthorsPage() {
 
     if (!res.ok) {
       const err = await res.json();
-      toast.error(`Erro: ${err.error || "Desconhecido"}`);
+      toast.error(`${t("admin.toast.saveError")}: ${err.error || t("admin.toast.unknownError")}`);
       setSaving(false);
       return;
     }
 
-    toast.success(isNew ? "Autor criado" : "Autor atualizado");
+    toast.success(isNew ? t("admin.authors.created") : t("admin.authors.updated"));
     setSaving(false);
     setEditing(null);
     fetchAuthors();
@@ -101,11 +103,11 @@ export default function AuthorsPage() {
 
     if (!res.ok) {
       const err = await res.json();
-      toast.error(`Erro: ${err.error || "Desconhecido"}`);
+      toast.error(`${t("admin.toast.deleteError")}: ${err.error || t("admin.toast.unknownError")}`);
       return;
     }
 
-    toast.success("Autor deletado");
+    toast.success(t("admin.authors.deleted"));
     fetchAuthors();
   }
 
@@ -127,13 +129,13 @@ export default function AuthorsPage() {
     });
 
     if (!res.ok) {
-      toast.error("Upload falhou");
+      toast.error(t("admin.toast.uploadError"));
       return;
     }
 
     const { url } = await res.json();
     setEditing({ ...editing, avatar_url: url });
-    toast.success("Avatar enviado");
+    toast.success(t("admin.authors.avatarUploaded"));
   }
 
   if (loading) {
@@ -148,14 +150,14 @@ export default function AuthorsPage() {
     <div className="mx-auto max-w-4xl">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold tracking-tight">
-          Autores
+          {t("admin.authors")}
         </h1>
         <button
           onClick={openNew}
           className="flex items-center gap-1.5 rounded-md bg-accent px-3 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
         >
           <Plus size={14} />
-          Novo autor
+          {t("admin.authors.new")}
         </button>
       </div>
 
@@ -211,7 +213,7 @@ export default function AuthorsPage() {
 
         {authors.length === 0 && (
           <p className="py-10 text-center text-sm text-muted">
-            Nenhum autor cadastrado.
+            {t("admin.authors.empty")}
           </p>
         )}
       </div>
@@ -222,7 +224,7 @@ export default function AuthorsPage() {
           <div className="mx-4 w-full max-w-lg rounded-xl border border-border bg-bg p-6">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="font-display text-lg font-semibold">
-                {editing.id ? "Editar autor" : "Novo autor"}
+                {editing.id ? t("admin.authors.edit") : t("admin.authors.new")}
               </h2>
               <button
                 onClick={() => setEditing(null)}
@@ -234,7 +236,7 @@ export default function AuthorsPage() {
 
             <div className="space-y-4">
               <div>
-                <label className="mb-1 block text-xs text-muted">Nome</label>
+                <label className="mb-1 block text-xs text-muted">{t("admin.authors.name")}</label>
                 <input
                   type="text"
                   value={editing.name}
@@ -251,7 +253,7 @@ export default function AuthorsPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-xs text-muted">Slug</label>
+                <label className="mb-1 block text-xs text-muted">{t("admin.authors.slug")}</label>
                 <input
                   type="text"
                   value={editing.slug}
@@ -264,7 +266,7 @@ export default function AuthorsPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-xs text-muted">Bio</label>
+                <label className="mb-1 block text-xs text-muted">{t("admin.authors.bio")}</label>
                 <textarea
                   value={editing.bio}
                   onChange={(e) =>
@@ -276,20 +278,20 @@ export default function AuthorsPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-xs text-muted">Role</label>
+                <label className="mb-1 block text-xs text-muted">{t("admin.authors.role")}</label>
                 <input
                   type="text"
                   value={editing.role}
                   onChange={(e) =>
                     setEditing({ ...editing, role: e.target.value })
                   }
-                  placeholder="author, founder, editor..."
+                  placeholder={t("admin.authors.rolePlaceholder")}
                   className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-primary outline-none focus:border-accent"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-xs text-muted">Avatar</label>
+                <label className="mb-1 block text-xs text-muted">{t("admin.authors.avatar")}</label>
                 <div className="flex items-center gap-3">
                   <input
                     type="text"
@@ -297,7 +299,7 @@ export default function AuthorsPage() {
                     onChange={(e) =>
                       setEditing({ ...editing, avatar_url: e.target.value })
                     }
-                    placeholder="URL ou faca upload"
+                    placeholder={t("admin.authors.avatarPlaceholder")}
                     className="flex-1 rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-primary outline-none focus:border-accent"
                   />
                   <label className="flex cursor-pointer items-center gap-1.5 rounded-md border border-border px-3 py-2.5 text-sm text-muted transition-colors hover:bg-elevated">
@@ -326,7 +328,7 @@ export default function AuthorsPage() {
               {/* Social links */}
               <div>
                 <div className="mb-2 flex items-center justify-between">
-                  <label className="text-xs text-muted">Links sociais</label>
+                  <label className="text-xs text-muted">{t("admin.authors.socialLinks")}</label>
                   <button
                     type="button"
                     onClick={() => {
@@ -337,7 +339,7 @@ export default function AuthorsPage() {
                     }}
                     className="text-xs text-accent hover:underline"
                   >
-                    + Adicionar link
+                    {t("admin.authors.addLink")}
                   </button>
                 </div>
 
@@ -388,7 +390,7 @@ export default function AuthorsPage() {
                             social_links: Object.fromEntries(entries),
                           });
                         }}
-                        placeholder="plataforma"
+                        placeholder={t("admin.authors.platform")}
                         className="w-28 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-primary outline-none focus:border-accent"
                       />
                       <input
@@ -425,7 +427,7 @@ export default function AuthorsPage() {
                 onClick={() => setEditing(null)}
                 className="rounded-md border border-border px-4 py-2 text-sm text-muted transition-colors hover:bg-elevated"
               >
-                Cancelar
+                {t("admin.authors.cancel")}
               </button>
               <button
                 onClick={handleSave}
@@ -435,7 +437,7 @@ export default function AuthorsPage() {
                 {saving ? (
                   <Loader2 size={14} className="animate-spin" />
                 ) : null}
-                {saving ? "Salvando..." : "Salvar"}
+                {saving ? t("admin.saving") : t("admin.save")}
               </button>
             </div>
           </div>

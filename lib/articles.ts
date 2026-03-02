@@ -1,5 +1,6 @@
 import { createClient } from "./supabase/server";
 import type { Article, ArticleMeta, ArticleRow, Author, AuthorRow } from "./types";
+import type { Locale } from "./i18n";
 import { rowToArticle, rowToMeta, rowToAuthor } from "./types";
 
 interface ArticleWithAuthors extends ArticleRow {
@@ -17,7 +18,65 @@ function extractAuthors(row: ArticleWithAuthors): Author[] {
     .map((aa) => rowToAuthor(aa.authors));
 }
 
-export async function getAllArticles(): Promise<ArticleMeta[]> {
+type TranslationLocale = "en" | "es";
+
+interface TranslationOverlay {
+  title: string;
+  excerpt: string;
+  content: string;
+  status: string;
+}
+
+async function getTranslationMap(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  articleIds: string[],
+  locale: TranslationLocale
+): Promise<Map<string, TranslationOverlay>> {
+  if (articleIds.length === 0) return new Map();
+  const { data } = await supabase
+    .from("article_translations")
+    .select("article_id, title, excerpt, content, status")
+    .eq("locale", locale)
+    .eq("status", "published")
+    .in("article_id", articleIds);
+
+  const map = new Map<string, TranslationOverlay>();
+  if (data) {
+    for (const row of data) {
+      map.set(row.article_id, row as TranslationOverlay);
+    }
+  }
+  return map;
+}
+
+function applyTranslation(
+  meta: ArticleMeta,
+  translation: TranslationOverlay | undefined
+): ArticleMeta {
+  if (!translation) return { ...meta, isTranslated: false };
+  return {
+    ...meta,
+    title: translation.title,
+    excerpt: translation.excerpt,
+    isTranslated: true,
+  };
+}
+
+function applyTranslationFull(
+  article: Article,
+  translation: TranslationOverlay | undefined
+): Article {
+  if (!translation) return { ...article, isTranslated: false };
+  return {
+    ...article,
+    title: translation.title,
+    excerpt: translation.excerpt,
+    content: translation.content,
+    isTranslated: true,
+  };
+}
+
+export async function getAllArticles(locale: Locale = "pt"): Promise<ArticleMeta[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("articles")
@@ -30,12 +89,18 @@ export async function getAllArticles(): Promise<ArticleMeta[]> {
     return [];
   }
 
-  return (data as ArticleWithAuthors[]).map((row) =>
-    rowToMeta(row, extractAuthors(row))
-  );
+  const rows = data as ArticleWithAuthors[];
+  const metas = rows.map((row) => rowToMeta(row, extractAuthors(row)));
+
+  if (locale === "pt") return metas;
+
+  const ids = rows.map((r) => r.id);
+  const translations = await getTranslationMap(supabase, ids, locale as TranslationLocale);
+
+  return metas.map((meta, i) => applyTranslation(meta, translations.get(rows[i].id)));
 }
 
-export async function getArticleBySlug(slug: string): Promise<Article | null> {
+export async function getArticleBySlug(slug: string, locale: Locale = "pt"): Promise<Article | null> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("articles")
@@ -45,10 +110,15 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
 
   if (error || !data) return null;
   const row = data as ArticleWithAuthors;
-  return rowToArticle(row, extractAuthors(row));
+  const article = rowToArticle(row, extractAuthors(row));
+
+  if (locale === "pt") return article;
+
+  const translations = await getTranslationMap(supabase, [row.id], locale as TranslationLocale);
+  return applyTranslationFull(article, translations.get(row.id));
 }
 
-export async function getArticlesByPillar(pillar: string): Promise<ArticleMeta[]> {
+export async function getArticlesByPillar(pillar: string, locale: Locale = "pt"): Promise<ArticleMeta[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("articles")
@@ -62,9 +132,15 @@ export async function getArticlesByPillar(pillar: string): Promise<ArticleMeta[]
     return [];
   }
 
-  return (data as ArticleWithAuthors[]).map((row) =>
-    rowToMeta(row, extractAuthors(row))
-  );
+  const rows = data as ArticleWithAuthors[];
+  const metas = rows.map((row) => rowToMeta(row, extractAuthors(row)));
+
+  if (locale === "pt") return metas;
+
+  const ids = rows.map((r) => r.id);
+  const translations = await getTranslationMap(supabase, ids, locale as TranslationLocale);
+
+  return metas.map((meta, i) => applyTranslation(meta, translations.get(rows[i].id)));
 }
 
 export async function getArticleSlugs(): Promise<string[]> {
@@ -78,7 +154,7 @@ export async function getArticleSlugs(): Promise<string[]> {
   return (data as { slug: string }[]).map((r) => r.slug);
 }
 
-export async function getFeaturedArticle(): Promise<ArticleMeta | null> {
+export async function getFeaturedArticle(locale: Locale = "pt"): Promise<ArticleMeta | null> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("articles")
@@ -91,7 +167,12 @@ export async function getFeaturedArticle(): Promise<ArticleMeta | null> {
 
   if (error || !data) return null;
   const row = data as ArticleWithAuthors;
-  return rowToMeta(row, extractAuthors(row));
+  const meta = rowToMeta(row, extractAuthors(row));
+
+  if (locale === "pt") return meta;
+
+  const translations = await getTranslationMap(supabase, [row.id], locale as TranslationLocale);
+  return applyTranslation(meta, translations.get(row.id));
 }
 
 import { PILLARS } from "./pillars-config";

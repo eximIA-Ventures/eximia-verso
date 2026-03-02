@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Upload, Trash2, Copy, Check } from "lucide-react";
+import { useLocale } from "@/components/LocaleProvider";
 
 interface MediaFile {
   name: string;
@@ -11,6 +12,7 @@ interface MediaFile {
 }
 
 export default function MediaPage() {
+  const { t } = useLocale();
   const [files, setFiles] = useState<MediaFile[]>([]);
   const [uploading, setUploading] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
@@ -75,8 +77,8 @@ export default function MediaPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <div className="mb-6">
-        <h1 className="font-display text-2xl font-bold tracking-tight">Media</h1>
-        <p className="text-sm text-muted">Gerenciar imagens do Supabase Storage</p>
+        <h1 className="font-display text-2xl font-bold tracking-tight">{t("admin.media")}</h1>
+        <p className="text-sm text-muted">{t("admin.media.subtitle")}</p>
       </div>
 
       {/* Upload zone */}
@@ -90,10 +92,10 @@ export default function MediaPage() {
       >
         <Upload size={24} className="mx-auto mb-2 text-muted" />
         <p className="mb-2 text-sm text-muted">
-          {uploading ? "Enviando..." : "Arraste imagens aqui ou"}
+          {uploading ? t("admin.media.uploading") : t("admin.media.dragHint")}
         </p>
         <label className="cursor-pointer text-sm text-accent hover:underline">
-          selecione arquivos
+          {t("admin.media.selectFiles")}
           <input
             type="file"
             accept="image/*"
@@ -107,7 +109,7 @@ export default function MediaPage() {
       {/* Gallery */}
       {files.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border py-16 text-center">
-          <p className="text-sm text-muted">Nenhuma imagem ainda.</p>
+          <p className="text-sm text-muted">{t("admin.media.empty")}</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
@@ -129,14 +131,14 @@ export default function MediaPage() {
                     <button
                       onClick={() => handleCopy(file.url)}
                       className="rounded p-1 text-white/80 hover:bg-white/20"
-                      title="Copiar URL"
+                      title={t("admin.media.copyUrl")}
                     >
                       {copied === file.url ? <Check size={12} /> : <Copy size={12} />}
                     </button>
                     <button
                       onClick={() => handleDelete(file.name)}
                       className="rounded p-1 text-red-300 hover:bg-white/20"
-                      title="Deletar"
+                      title={t("admin.media.delete")}
                     >
                       <Trash2 size={12} />
                     </button>

@@ -1,17 +1,27 @@
 import { getAllArticles, getPillars } from "@/lib/articles";
 import { ArticleFilters } from "./ArticleFilters";
 import { T } from "@/components/T";
+import { getServerLocale } from "@/lib/get-server-locale";
 import type { Metadata } from "next";
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: "Insights",
-  description: "Pesquisa verificada sobre IA aplicada a estratégia, negócios e mercados.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getServerLocale();
+  const descriptions: Record<string, string> = {
+    pt: "Pesquisa verificada sobre IA aplicada a estratégia, negócios e mercados.",
+    en: "Verified research on AI applied to strategy, business and markets.",
+    es: "Investigación verificada sobre IA aplicada a estrategia, negocios y mercados.",
+  };
+  return {
+    title: "Insights",
+    description: descriptions[locale],
+  };
+}
 
 export default async function ArticlesPage() {
-  const articles = await getAllArticles();
+  const locale = await getServerLocale();
+  const articles = await getAllArticles(locale);
   const pillars = getPillars();
 
   return (

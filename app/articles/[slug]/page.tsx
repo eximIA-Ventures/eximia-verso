@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getArticleBySlug } from "@/lib/articles";
 import { renderMDX, extractToc } from "@/lib/mdx";
 import { ArticleLayout } from "@/components/ArticleLayout";
+import { getServerLocale } from "@/lib/get-server-locale";
 import type { Metadata } from "next";
 
 export const revalidate = 60;
@@ -12,7 +13,8 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const article = await getArticleBySlug(slug);
+  const locale = await getServerLocale();
+  const article = await getArticleBySlug(slug, locale);
   if (!article) return {};
 
   const url = `https://verso.eximiaventures.com.br/articles/${slug}`;
@@ -20,6 +22,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const authorNames = article.authors.length > 0
     ? article.authors.map((a) => a.name)
     : [article.author];
+
+  const ogLocales: Record<string, string> = {
+    pt: "pt_BR",
+    en: "en_US",
+    es: "es_ES",
+  };
 
   return {
     title: article.title,
@@ -30,6 +38,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: article.excerpt,
       type: "article",
       url,
+      locale: ogLocales[locale],
       siteName: "Verso by exímIA",
       publishedTime: article.publishDate,
       authors: authorNames,
@@ -48,14 +57,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ArticlePage({ params }: PageProps) {
   const { slug } = await params;
-  const article = await getArticleBySlug(slug);
+  const locale = await getServerLocale();
+  const article = await getArticleBySlug(slug, locale);
   if (!article) notFound();
 
   const toc = extractToc(article.content);
   const content = await renderMDX(article.content);
 
   return (
-    <ArticleLayout article={article} toc={toc}>
+    <ArticleLayout article={article} toc={toc} locale={locale}>
       {content}
     </ArticleLayout>
   );

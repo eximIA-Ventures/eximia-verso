@@ -17,16 +17,19 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { EximiaLogoFull } from "@/components/EximiaLogoFull";
 import { ToastProvider } from "@/components/admin/Toast";
+import { useLocale } from "@/components/LocaleProvider";
+import type { TranslationKey } from "@/lib/i18n";
 
-const NAV_ITEMS = [
-  { href: "/admin", label: "Home", icon: Home },
-  { href: "/admin/articles", label: "Artigos", icon: FileText },
-  { href: "/admin/authors", label: "Autores", icon: UserPen },
-  { href: "/admin/media", label: "Media", icon: Image },
-  { href: "/admin/subscribers", label: "Subscribers", icon: Users },
+const NAV_ITEMS: { href: string; labelKey: TranslationKey; icon: typeof Home }[] = [
+  { href: "/admin", labelKey: "admin.dashboard", icon: Home },
+  { href: "/admin/articles", labelKey: "admin.nav.articles", icon: FileText },
+  { href: "/admin/authors", labelKey: "admin.nav.authors", icon: UserPen },
+  { href: "/admin/media", labelKey: "admin.nav.media", icon: Image },
+  { href: "/admin/subscribers", labelKey: "admin.nav.subscribers", icon: Users },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const { t } = useLocale();
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -77,7 +80,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 }`}
               >
                 <item.icon size={16} />
-                {item.label}
+                {t(item.labelKey)}
               </Link>
             );
           })}
@@ -90,7 +93,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-muted transition-colors hover:bg-elevated hover:text-primary"
             >
               <ExternalLink size={16} />
-              Ver site
+              {t("admin.nav.viewSite")}
             </Link>
           </div>
         </nav>
@@ -102,7 +105,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-muted transition-colors hover:bg-elevated hover:text-primary"
           >
             <LogOut size={16} />
-            Sair
+            {t("admin.nav.logout")}
           </button>
         </div>
       </>
@@ -121,7 +124,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <button
           onClick={() => setSidebarOpen(true)}
           className="fixed left-3 top-3 z-40 rounded-md border border-border bg-surface p-2 text-muted md:hidden"
-          aria-label="Abrir menu"
+          aria-label={t("admin.nav.openMenu")}
         >
           <Menu size={20} />
         </button>
@@ -139,7 +142,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <button
                 onClick={() => setSidebarOpen(false)}
                 className="absolute right-2 top-3 rounded-md p-1.5 text-muted hover:text-primary"
-                aria-label="Fechar menu"
+                aria-label={t("admin.nav.closeMenu")}
               >
                 <X size={18} />
               </button>
