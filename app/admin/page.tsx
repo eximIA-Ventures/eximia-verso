@@ -5,6 +5,7 @@ import type { ArticleRow } from "@/lib/types";
 import { t } from "@/lib/i18n";
 import { getServerLocale } from "@/lib/get-server-locale";
 import type { TranslationKey } from "@/lib/i18n";
+import { DashboardAnalytics } from "@/components/admin/DashboardAnalytics";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +46,16 @@ async function getStats() {
     .order("updated_at", { ascending: false })
     .limit(5);
 
+  // All article id→title for analytics top articles
+  const { data: allArticles } = await supabase
+    .from("articles")
+    .select("id, title");
+
+  const articleTitles: Record<string, string> = {};
+  for (const a of allArticles ?? []) {
+    articleTitles[a.id] = a.title;
+  }
+
   return {
     total: total ?? 0,
     published: published ?? 0,
@@ -53,6 +64,7 @@ async function getStats() {
     featured: featured ?? 0,
     subscribers: subscribers ?? 0,
     recent: (recent ?? []) as ArticleRow[],
+    articleTitles,
   };
 }
 
@@ -90,6 +102,14 @@ export default async function AdminDashboard() {
             <p className="text-2xl font-bold">{stats[key]}</p>
           </div>
         ))}
+      </div>
+
+      {/* Analytics section */}
+      <div className="mb-8">
+        <DashboardAnalytics
+          t={(key: TranslationKey) => t(locale, key)}
+          articleTitles={stats.articleTitles}
+        />
       </div>
 
       {/* Recent articles */}

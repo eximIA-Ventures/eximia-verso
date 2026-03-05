@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getArticleBySlug } from "@/lib/articles";
 import { renderMDX, extractToc } from "@/lib/mdx";
 import { ArticleLayout } from "@/components/ArticleLayout";
+import { ArticleTracker } from "@/components/ArticleTracker";
 import { getServerLocale } from "@/lib/get-server-locale";
 import type { Metadata } from "next";
 
@@ -65,8 +66,11 @@ export default async function ArticlePage({ params }: PageProps) {
   const content = await renderMDX(article.content);
 
   return (
-    <ArticleLayout article={article} toc={toc} locale={locale}>
-      {content}
-    </ArticleLayout>
+    <>
+      <ArticleTracker articleId={article.id} slug={slug} />
+      <ArticleLayout article={article} toc={toc} locale={locale}>
+        {content}
+      </ArticleLayout>
+    </>
   );
 }

@@ -39,12 +39,26 @@ export default function AdminArticlesPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [pillarFilter, setPillarFilter] = useState("");
   const [search, setSearch] = useState("");
+  const [viewsMap, setViewsMap] = useState<Record<string, number>>({});
 
   useEffect(() => {
     async function load() {
-      const res = await fetch("/api/admin/articles");
-      const data = await res.json();
+      const [articlesRes, analyticsRes] = await Promise.all([
+        fetch("/api/admin/articles"),
+        fetch("/api/admin/analytics?period=30"),
+      ]);
+      const data = await articlesRes.json();
       setArticles(Array.isArray(data) ? data : []);
+
+      try {
+        const analytics = await analyticsRes.json();
+        const map: Record<string, number> = {};
+        for (const row of analytics.summary ?? []) {
+          map[row.article_id] = row.total_views ?? 0;
+        }
+        setViewsMap(map);
+      } catch {}
+
       setLoading(false);
     }
     load();
@@ -177,6 +191,7 @@ export default function AdminArticlesPage() {
                 <th className="px-4 py-3 font-medium">{t("admin.articles.colTitle")}</th>
                 <th className="hidden px-4 py-3 font-medium sm:table-cell">{t("admin.articles.colPillar")}</th>
                 <th className="px-4 py-3 font-medium">{t("admin.articles.colStatus")}</th>
+                <th className="hidden px-4 py-3 font-medium sm:table-cell">Views</th>
                 <th className="hidden px-4 py-3 font-medium sm:table-cell">
                   <Languages size={12} className="inline" /> i18n
                 </th>
@@ -211,6 +226,15 @@ export default function AdminArticlesPage() {
                     >
                       {article.status}
                     </span>
+                  </td>
+                  <td className="hidden px-4 py-3 sm:table-cell">
+                    {viewsMap[article.id] != null ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent">
+                        {viewsMap[article.id].toLocaleString()}
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-muted/50">—</span>
+                    )}
                   </td>
                   <td className="hidden px-4 py-3 sm:table-cell">
                     <div className="flex items-center gap-1">

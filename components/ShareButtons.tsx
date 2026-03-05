@@ -23,9 +23,14 @@ export function ShareButtons({ title, slug }: ShareButtonsProps) {
   const encodedTitle = encodeURIComponent(title);
   const encodedUrl = encodeURIComponent(url);
 
+  const emitShare = (platform: string) => {
+    document.dispatchEvent(new CustomEvent("verso:share", { detail: { platform } }));
+  };
+
   const handleCopy = () => {
     navigator.clipboard.writeText(url);
     setCopied(true);
+    emitShare("copy");
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -38,6 +43,7 @@ export function ShareButtons({ title, slug }: ShareButtonsProps) {
         href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => emitShare("linkedin")}
         className="flex h-8 w-8 items-center justify-center rounded-md text-muted transition-colors hover:bg-elevated hover:text-primary"
         aria-label={t("share.linkedin")}
       >
@@ -47,6 +53,7 @@ export function ShareButtons({ title, slug }: ShareButtonsProps) {
         href={`https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => emitShare("x")}
         className="flex h-8 w-8 items-center justify-center rounded-md text-muted transition-colors hover:bg-elevated hover:text-primary"
         aria-label={t("share.x")}
       >

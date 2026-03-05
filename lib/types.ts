@@ -33,6 +33,7 @@ export function rowToAuthor(row: AuthorRow): Author {
 }
 
 export interface Article {
+  id: string;
   slug: string;
   title: string;
   excerpt: string;
@@ -50,6 +51,7 @@ export interface Article {
 }
 
 export interface ArticleMeta {
+  id: string;
   slug: string;
   title: string;
   excerpt: string;
@@ -88,6 +90,7 @@ export interface ArticleRow {
 // Converter DB row para Article (camelCase)
 export function rowToArticle(row: ArticleRow, authors: Author[] = []): Article {
   return {
+    id: row.id,
     slug: row.slug,
     title: row.title,
     excerpt: row.excerpt,
@@ -106,6 +109,7 @@ export function rowToArticle(row: ArticleRow, authors: Author[] = []): Article {
 
 export function rowToMeta(row: ArticleRow, authors: Author[] = []): ArticleMeta {
   return {
+    id: row.id,
     slug: row.slug,
     title: row.title,
     excerpt: row.excerpt,
@@ -202,4 +206,30 @@ export interface CalendarItem {
     xPosts?: number;
     xThreads?: number;
   };
+}
+
+// Analytics types
+export interface AnalyticsSummary {
+  article_id: string;
+  total_views: number;
+  total_unique_visitors: number;
+  avg_read_time: number | null;
+  avg_scroll_depth: number | null;
+  total_shares: number;
+}
+
+export interface AnalyticsTrendPoint {
+  day: string;
+  views: number;
+  unique_visitors: number;
+  avg_read_time: number | null;
+  shares: number;
+}
+
+export interface AnalyticsTotals {
+  views: number;
+  uniqueVisitors: number;
+  avgReadTime: number;
+  shares: number;
+  count: number;
 }

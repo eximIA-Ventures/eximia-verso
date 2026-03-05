@@ -293,6 +293,19 @@ const translations = {
     "admin.media.empty": "Nenhuma imagem ainda.",
     "admin.media.copyUrl": "Copiar URL",
     "admin.media.delete": "Deletar",
+
+    // Admin — analytics
+    "admin.analytics.views": "Views",
+    "admin.analytics.uniqueVisitors": "Visitantes únicos",
+    "admin.analytics.avgReadTime": "Tempo médio de leitura",
+    "admin.analytics.avgScroll": "Scroll médio",
+    "admin.analytics.shares": "Compartilhamentos",
+    "admin.analytics.trend": "Tendência",
+    "admin.analytics.topArticles": "Top Artigos",
+    "admin.analytics.period7": "7 dias",
+    "admin.analytics.period30": "30 dias",
+    "admin.analytics.period90": "90 dias",
+    "admin.analytics.noData": "Sem dados de analytics ainda.",
   },
   en: {
     "nav.insights": "Insights",
@@ -555,6 +568,18 @@ const translations = {
     "admin.media.empty": "No images yet.",
     "admin.media.copyUrl": "Copy URL",
     "admin.media.delete": "Delete",
+
+    "admin.analytics.views": "Views",
+    "admin.analytics.uniqueVisitors": "Unique visitors",
+    "admin.analytics.avgReadTime": "Avg. read time",
+    "admin.analytics.avgScroll": "Avg. scroll",
+    "admin.analytics.shares": "Shares",
+    "admin.analytics.trend": "Trend",
+    "admin.analytics.topArticles": "Top Articles",
+    "admin.analytics.period7": "7 days",
+    "admin.analytics.period30": "30 days",
+    "admin.analytics.period90": "90 days",
+    "admin.analytics.noData": "No analytics data yet.",
   },
   es: {
     "nav.insights": "Insights",
@@ -817,6 +842,18 @@ const translations = {
     "admin.media.empty": "Ninguna imagen aún.",
     "admin.media.copyUrl": "Copiar URL",
     "admin.media.delete": "Eliminar",
+
+    "admin.analytics.views": "Vistas",
+    "admin.analytics.uniqueVisitors": "Visitantes únicos",
+    "admin.analytics.avgReadTime": "Tiempo medio de lectura",
+    "admin.analytics.avgScroll": "Scroll medio",
+    "admin.analytics.shares": "Compartidos",
+    "admin.analytics.trend": "Tendencia",
+    "admin.analytics.topArticles": "Top Artículos",
+    "admin.analytics.period7": "7 días",
+    "admin.analytics.period30": "30 días",
+    "admin.analytics.period90": "90 días",
+    "admin.analytics.noData": "Sin datos de analytics aún.",
   },
 } as const;
 
