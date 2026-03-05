@@ -107,7 +107,17 @@ export default async function AdminDashboard() {
       {/* Analytics section */}
       <div className="mb-8">
         <DashboardAnalytics
-          t={(key: TranslationKey) => t(locale, key)}
+          labels={{
+            views: t(locale, "admin.analytics.views"),
+            uniqueVisitors: t(locale, "admin.analytics.uniqueVisitors"),
+            avgReadTime: t(locale, "admin.analytics.avgReadTime"),
+            shares: t(locale, "admin.analytics.shares"),
+            trend: t(locale, "admin.analytics.trend"),
+            topArticles: t(locale, "admin.analytics.topArticles"),
+            period7: t(locale, "admin.analytics.period7"),
+            period30: t(locale, "admin.analytics.period30"),
+            period90: t(locale, "admin.analytics.period90"),
+          }}
           articleTitles={stats.articleTitles}
         />
       </div>
