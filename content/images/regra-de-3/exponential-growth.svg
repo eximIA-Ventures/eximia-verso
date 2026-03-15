@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <linearGradient id="curveGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#7c9e8f"/>
+      <stop offset="25%" stop-color="#c4a882"/>
+      <stop offset="70%" stop-color="#c4a882"/>
+      <stop offset="100%" stop-color="#b85c5c"/>
+    </linearGradient>
+    <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c4a882" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#c4a882" stop-opacity="0.01"/>
+    </linearGradient>
+    <linearGradient id="greenZone" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7c9e8f" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#7c9e8f" stop-opacity="0.02"/>
+    </linearGradient>
+    <linearGradient id="blueZone" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8b7355" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#8b7355" stop-opacity="0.01"/>
+    </linearGradient>
+    <linearGradient id="redZone" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#b85c5c" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#b85c5c" stop-opacity="0.01"/>
+    </linearGradient>
+    <style>
+      .label { font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif; }
+      .axis-label { font-size: 11px; fill: #888888; }
+      .axis-title { font-size: 13px; fill: #666666; font-weight: 600; }
+      .grid-line { stroke: #e0dcd5; stroke-width: 1; }
+      .annotation { font-size: 11px; font-weight: 600; }
+    </style>
+  </defs>
+
+  <!-- Title -->
+  <text x="400" y="35" text-anchor="middle" class="label" font-size="20" font-weight="700" fill="#1a1a1a" letter-spacing="-0.02em">Crescimento Exponencial das Conexões</text>
+  <text x="400" y="55" text-anchor="middle" class="label" font-size="13" fill="#666666">n(n-1)/2 — Cada pessoa adicionada custa mais que a anterior</text>
+
+  <!-- Chart area: x=80..750, y=80..420 -->
+  <line x1="80" y1="420" x2="750" y2="420" class="grid-line" stroke="#d8d2c8"/>
+  <line x1="80" y1="360" x2="750" y2="360" class="grid-line"/>
+  <line x1="80" y1="300" x2="750" y2="300" class="grid-line"/>
+  <line x1="80" y1="240" x2="750" y2="240" class="grid-line"/>
+  <line x1="80" y1="180" x2="750" y2="180" class="grid-line"/>
+  <line x1="80" y1="120" x2="750" y2="120" class="grid-line"/>
+
+  <!-- Y axis labels -->
+  <text x="72" y="424" text-anchor="end" class="label axis-label">0</text>
+  <text x="72" y="364" text-anchor="end" class="label axis-label">30</text>
+  <text x="72" y="304" text-anchor="end" class="label axis-label">60</text>
+  <text x="72" y="244" text-anchor="end" class="label axis-label">90</text>
+  <text x="72" y="184" text-anchor="end" class="label axis-label">120</text>
+  <text x="72" y="124" text-anchor="end" class="label axis-label">150</text>
+
+  <!-- X axis labels -->
+  <text x="116" y="440" text-anchor="middle" class="label axis-label">2</text>
+  <text x="190" y="440" text-anchor="middle" class="label axis-label">4</text>
+  <text x="264" y="440" text-anchor="middle" class="label axis-label">6</text>
+  <text x="338" y="440" text-anchor="middle" class="label axis-label">8</text>
+  <text x="413" y="440" text-anchor="middle" class="label axis-label">10</text>
+  <text x="487" y="440" text-anchor="middle" class="label axis-label">12</text>
+  <text x="561" y="440" text-anchor="middle" class="label axis-label">14</text>
+  <text x="635" y="440" text-anchor="middle" class="label axis-label">16</text>
+  <text x="710" y="440" text-anchor="middle" class="label axis-label">18</text>
+  <text x="747" y="440" text-anchor="middle" class="label axis-label">20</text>
+
+  <!-- Axis titles -->
+  <text x="415" y="470" text-anchor="middle" class="label axis-title">Pessoas na equipe</text>
+  <text x="25" y="260" text-anchor="middle" class="label axis-title" transform="rotate(-90, 25, 260)">Conexões</text>
+
+  <!-- Zone backgrounds -->
+  <rect x="80" y="80" width="73" height="340" fill="url(#greenZone)"/>
+  <rect x="191" y="80" width="112" height="340" fill="url(#blueZone)"/>
+  <rect x="377" y="80" width="373" height="340" fill="url(#redZone)"/>
+
+  <!-- Zone labels at top -->
+  <text x="116" y="95" text-anchor="middle" class="label annotation" fill="#5a7a6b">Sweet Spot</text>
+  <text x="247" y="95" text-anchor="middle" class="label annotation" fill="#8b7355">Zona Bezos</text>
+  <text x="563" y="95" text-anchor="middle" class="label annotation" fill="#b85c5c">Zona de Perigo</text>
+
+  <!-- Area under curve -->
+  <path d="M116,418.2 L153,414.6 L190,409.3 L228,402.1 L265,393.2 L302,382.4 L340,369.9 L377,355.6 L414,339.5 L451,321.6 L489,302.0 L526,280.5 L563,257.2 L601,232.1 L638,205.3 L675,176.7 L712,146.3 L750,80.0 L750,420 L116,420 Z" fill="url(#areaGrad)"/>
+
+  <!-- Main curve line -->
+  <path d="M116,418.2 L153,414.6 L190,409.3 L228,402.1 L265,393.2 L302,382.4 L340,369.9 L377,355.6 L414,339.5 L451,321.6 L489,302.0 L526,280.5 L563,257.2 L601,232.1 L638,205.3 L675,176.7 L712,146.3 L750,80.0" fill="none" stroke="#c4a882" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Key data points -->
+  <circle cx="116" cy="418.2" r="4" fill="#c4a882"/>
+
+  <!-- n=3: 3 connections (GREEN - sweet spot) -->
+  <circle cx="153" cy="414.6" r="8" fill="#7c9e8f" stroke="white" stroke-width="2"/>
+  <text x="153" y="402" text-anchor="middle" class="label" font-size="12" font-weight="700" fill="#5a7a6b">3</text>
+  <text x="153" y="392" text-anchor="middle" class="label" font-size="10" fill="#5a7a6b" opacity="0.7">conexões</text>
+
+  <!-- n=5: 10 connections -->
+  <circle cx="228" cy="402.1" r="6" fill="#8b7355" stroke="white" stroke-width="2"/>
+  <text x="240" y="393" text-anchor="start" class="label" font-size="12" font-weight="700" fill="#8b7355">10</text>
+
+  <!-- n=7: 21 connections -->
+  <circle cx="302" cy="382.4" r="6" fill="#8b7355" stroke="white" stroke-width="2"/>
+  <text x="314" y="373" text-anchor="start" class="label" font-size="12" font-weight="700" fill="#8b7355">21</text>
+
+  <!-- n=10: 45 connections (RED zone starts) -->
+  <circle cx="414" cy="339.5" r="7" fill="#b85c5c" stroke="white" stroke-width="2"/>
+  <text x="426" y="330" text-anchor="start" class="label" font-size="12" font-weight="700" fill="#b85c5c">45</text>
+
+  <!-- n=15: 105 connections -->
+  <circle cx="601" cy="232.1" r="6" fill="#b85c5c" stroke="white" stroke-width="2"/>
+  <text x="613" y="223" text-anchor="start" class="label" font-size="12" font-weight="700" fill="#b85c5c">105</text>
+
+  <!-- n=20: 190 connections -->
+  <circle cx="750" cy="80" r="7" fill="#b85c5c" stroke="white" stroke-width="2"/>
+  <text x="735" y="73" text-anchor="end" class="label" font-size="13" font-weight="700" fill="#b85c5c">190</text>
+
+  <!-- Insight callout box -->
+  <rect x="460" y="130" width="220" height="52" rx="8" fill="white" stroke="#e0dcd5" stroke-width="1"/>
+  <text x="570" y="150" text-anchor="middle" class="label" font-size="11" fill="#666666">De 3 para 20 pessoas:</text>
+  <text x="570" y="170" text-anchor="middle" class="label" font-size="14" font-weight="700" fill="#b85c5c">conexões x63 (+6.200%)</text>
+
+  <!-- Vertical axis line -->
+  <line x1="80" y1="80" x2="80" y2="420" stroke="#d8d2c8" stroke-width="1"/>
+</svg>
