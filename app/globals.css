@@ -175,6 +175,18 @@ h3 {
   color: rgb(var(--c-muted));
 }
 
+/* SVG infographics: light background in dark mode so dark text stays readable */
+.prose img[src$=".svg"] {
+  background-color: #f8f6f3;
+  border-radius: 0.75rem;
+  padding: 1.5rem 1rem;
+}
+
+[data-theme="light"] .prose img[src$=".svg"] {
+  background-color: transparent;
+  padding: 0;
+}
+
 /* ======================================================================
    READING PROGRESS BAR
    ====================================================================== */
