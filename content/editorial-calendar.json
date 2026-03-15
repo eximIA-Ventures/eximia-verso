@@ -1,12 +1,21 @@
 {
-  "version": "1.0",
-  "lastUpdated": "2026-02-28",
+  "version": "1.1",
+  "lastUpdated": "2026-03-15",
+  "series": {
+    "eximia-por-dentro": {
+      "name": "eximIA Por Dentro",
+      "description": "Série que revela a estrutura interna do ecossistema eximIA — da visão macro aos detalhes de cada componente.",
+      "articles": ["cal-001", "cal-008", "cal-009", "cal-010"]
+    }
+  },
   "items": [
     {
       "id": "cal-001",
       "title": "A Empresa de Uma Pessoa com +160 Agentes: Como Opero a eximIA sem NENHUM funcionário",
       "pillar": "ai-strategy",
-      "status": "in-progress",
+      "status": "published",
+      "series": "eximia-por-dentro",
+      "seriesOrder": 1,
       "angle": "Case real. Hugo opera eximIA com J.A.R.V.I.S. + 160+ agentes de IA. Ninguém no Brasil tem esse case documentado.",
       "keywords": ["empresa de uma pessoa", "AI agents", "solopreneur", "automação com IA", "eximIA"],
       "sources": [
@@ -14,6 +23,49 @@
         "https://www.entrepreneur.com/growing-a-business/7-ai-tools-that-run-a-one-person-business-in-2026-no/501943"
       ],
       "createdAt": "2026-02-28",
+      "publishDate": "2026-03-03"
+    },
+    {
+      "id": "cal-008",
+      "title": "Conheça o J.A.R.V.I.S., o Cérebro Por Trás da exímIA",
+      "pillar": "ai-strategy",
+      "status": "draft",
+      "series": "eximia-por-dentro",
+      "seriesOrder": 2,
+      "angle": "Como o J.A.R.V.I.S. orquestra 240+ agentes sem sobrecarga cognitiva. A arquitetura fractal de chiefs e membros. O dia-a-dia do orquestrador central.",
+      "keywords": ["J.A.R.V.I.S.", "orquestração IA", "eximIA", "arquitetura multi-agente", "AI orchestrator"],
+      "sources": [],
+      "createdAt": "2026-03-05",
+      "publishDate": null
+    },
+    {
+      "id": "cal-009",
+      "title": "A Regra de 3: Por Que o Melhor Time do Mundo Tem Menos Gente do Que Você Imagina",
+      "pillar": "ai-strategy",
+      "status": "published",
+      "series": "eximia-por-dentro",
+      "seriesOrder": 3,
+      "angle": "113 anos de pesquisa — de Ringelmann a Google DeepMind — convergem no mesmo número. A ciência que explica por que squads de 3-5 funcionam para humanos E para agentes de IA.",
+      "keywords": ["regra de 3", "gestão de times", "AI agents", "produtividade", "multi-agent systems", "eximIA"],
+      "sources": [
+        "https://www.sciencedirect.com/science/article/abs/pii/002210317490033X",
+        "https://rework.withgoogle.com/intl/en/guides/understanding-team-effectiveness",
+        "https://research.google/blog/towards-a-science-of-scaling-agent-systems-when-and-why-agent-systems-work/"
+      ],
+      "createdAt": "2026-03-15",
+      "publishDate": "2026-03-15"
+    },
+    {
+      "id": "cal-010",
+      "title": "Mentes Sintéticas: Como Especialistas Reais Viram Agentes de IA",
+      "pillar": "ai-strategy",
+      "status": "planned",
+      "series": "eximia-por-dentro",
+      "seriesOrder": 4,
+      "angle": "O que diferencia um agente de um prompt genérico. O processo de clonagem de expertise: pesquisa profunda, Voice DNA, frameworks proprietários, anti-patterns. Por que o Gary Halbert do ecossistema não escreve como o Ogilvy — e por que isso importa.",
+      "keywords": ["mentes sintéticas", "AI agents", "clonagem de expertise", "voice DNA", "eximIA", "agentes especializados"],
+      "sources": [],
+      "createdAt": "2026-03-15",
       "publishDate": null
     },
     {
